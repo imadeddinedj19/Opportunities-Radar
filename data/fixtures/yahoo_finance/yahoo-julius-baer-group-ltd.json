@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"Julius Baer expands wealth management presence in the Middle East\", \"link\": \"https://finance.yahoo.example/news/julius-baer-expands-wealth-management-presence-in-the-middle-east\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1786536000}, {\"title\": \"Julius Baer launches digital advisory platform for next-generation clients\", \"link\": \"https://finance.yahoo.example/news/julius-baer-launches-digital-advisory-platform-for-next-generation-clients\", \"publisher\": \"Finews\", \"providerPublishTime\": 1784808000}, {\"title\": \"Julius Baer faces regulatory review over lending practices\", \"link\": \"https://finance.yahoo.example/news/julius-baer-faces-regulatory-review-over-lending-practices\", \"publisher\": \"Bloomberg\", \"providerPublishTime\": 1783080000}]}"
+}

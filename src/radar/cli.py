@@ -53,7 +53,10 @@ def ingest(
     table.add_row("Dropped (wrong company)", str(report.dropped_unmatched))
     for connector, n in sorted(report.per_connector.items()):
         table.add_row(f"Candidates from {connector}", str(n))
+    table.add_row("[bold]Distinct insights[/bold]", str(report.insights_total))
+    table.add_row("[bold]New insights this run[/bold]", str(report.insights_new))
     console.print(table)
+    console.print("See them with [bold]radar insights[/bold] (add --new for only the new ones).")
 
 
 @app.command()
@@ -125,6 +128,54 @@ def company(name: str) -> None:
             t.add_column(col)
         for _, r in ev.iterrows():
             t.add_row(*[str(v)[:70] for v in r.tolist()])
+        console.print(t)
+
+
+@app.command()
+def insights(
+    new: bool = typer.Option(False, "--new", help="Only insights first seen on the latest run."),
+    company: str | None = typer.Option(None, help="Filter to one company (name contains)."),
+    limit: int = typer.Option(25, help="Maximum insights to show."),
+) -> None:
+    """Daily Insights: distinct, deduplicated signals, each with the sources that reported it."""
+    settings = get_settings()
+    with Store(settings.resolved_db_path) as store:
+        where = []
+        params: list = []
+        if new:
+            where.append("i.is_new = TRUE")
+        if company:
+            where.append("lower(c.canonical_name) LIKE lower(?)")
+            params.append(f"%{company}%")
+        clause = ("WHERE " + " AND ".join(where)) if where else ""
+        rows = store.df(
+            f"""
+            SELECT i.insight_id, c.canonical_name AS company, i.insight_type AS type,
+                   i.event_date, i.source_count, i.connectors, i.canonical_title, i.is_new
+            FROM insights i JOIN companies c USING (company_id)
+            {clause}
+            ORDER BY i.is_new DESC, i.source_count DESC, i.event_date DESC NULLS LAST
+            LIMIT {int(limit)}
+            """,
+            params,
+        )
+        if rows.empty:
+            console.print("[dim]No insights match. Run `radar ingest` first.[/dim]")
+            return
+        title = "New insights (this run)" if new else "Daily Insights"
+        t = Table(title=title)
+        for col in ("company", "type", "event_date", "sources", "insight"):
+            t.add_column(col)
+        for _, r in rows.iterrows():
+            conns = ", ".join(r["connectors"]) if r["connectors"] is not None else ""
+            flag = "🆕 " if r["is_new"] else ""
+            t.add_row(
+                str(r["company"])[:22],
+                str(r["type"]),
+                str(r["event_date"])[:10],
+                f"{r['source_count']} ({conns})",
+                flag + str(r["canonical_title"])[:60],
+            )
         console.print(t)
 
 

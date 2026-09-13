@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"BlackRock acquires private markets data provider to expand Aladdin\", \"link\": \"https://finance.yahoo.example/news/blackrock-acquires-private-markets-data-provider-to-expand-aladdin\", \"publisher\": \"Bloomberg\", \"providerPublishTime\": 1787400000}, {\"title\": \"BlackRock launches tokenized money market fund on public blockchain\", \"link\": \"https://finance.yahoo.example/news/blackrock-launches-tokenized-money-market-fund-on-public-blockchain\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1785844800}, {\"title\": \"BlackRock expands active ETF lineup in Europe\", \"link\": \"https://finance.yahoo.example/news/blackrock-expands-active-etf-lineup-in-europe\", \"publisher\": \"Financial Times\", \"providerPublishTime\": 1783771200}]}"
+}

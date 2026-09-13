@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"Euronext acquires Nordic clearing business to expand post-trade\", \"link\": \"https://finance.yahoo.example/news/euronext-acquires-nordic-clearing-business-to-expand-post-trade\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1786708800}, {\"title\": \"Euronext launches new suite of ESG indices and data products\", \"link\": \"https://finance.yahoo.example/news/euronext-launches-new-suite-of-esg-indices-and-data-products\", \"publisher\": \"Bloomberg\", \"providerPublishTime\": 1785240000}, {\"title\": \"Euronext expands data services division with analytics acquisition\", \"link\": \"https://finance.yahoo.example/news/euronext-expands-data-services-division-with-analytics-acquisition\", \"publisher\": \"Financial Times\", \"providerPublishTime\": 1781784000}]}"
+}

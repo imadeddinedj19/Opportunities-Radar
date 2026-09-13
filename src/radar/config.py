@@ -44,6 +44,20 @@ class Settings(BaseSettings):
     max_events_per_company_per_source: int = 50
     news_languages: tuple[str, ...] = ("en",)
 
+    # Which insight-producing connectors are active. Enrichment connectors (wikidata, wikipedia)
+    # always run; these are the news/event sources that feed insights.
+    connectors: tuple[str, ...] = ("google_news_rss", "gdelt", "yahoo_finance", "sec_edgar")
+
+    # --- Deduplication (cross-source insight merging) ------------------------------------
+    dedup_title_similarity: float = Field(
+        default=82.0,
+        description="0-100 fuzzy title-similarity above which two events are the same insight.",
+    )
+    dedup_window_days: int = Field(
+        default=10,
+        description="Events more than this many days apart are treated as different insights.",
+    )
+
     @property
     def seed_path(self) -> Path:
         return self.data_dir / "seed" / "companies.csv"

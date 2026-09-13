@@ -1,0 +1,7 @@
+{
+  "url": "https://efts.sec.gov/LATEST/search-index",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"hits\": {\"hits\": [{\"_id\": \"0000000000-26-100000:doc.htm\", \"_source\": {\"display_names\": [\"Euronext NV (CIK 0000000000)\"], \"file_date\": \"2026-08-14\", \"root_form\": \"8-K\", \"url\": \"https://www.sec.gov/Archives/edgar/data/0/euronext-nv-8-K.htm\"}}, {\"_id\": \"0000000000-26-100001:doc.htm\", \"_source\": {\"display_names\": [\"Euronext NV (CIK 0000000000)\"], \"file_date\": \"2026-05-24\", \"root_form\": \"10-K\", \"url\": \"https://www.sec.gov/Archives/edgar/data/0/euronext-nv-10-K.htm\"}}]}}"
+}

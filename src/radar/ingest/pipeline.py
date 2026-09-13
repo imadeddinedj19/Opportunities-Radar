@@ -13,8 +13,9 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from radar.config import Settings
-from radar.ingest import gdelt, news, wikidata, wikipedia
+from radar.ingest import gdelt, news, sec_edgar, wikidata, wikipedia, yahoo_finance
 from radar.ingest.client import Fetcher
+from radar.insights import build_insights
 from radar.models import (
     Company,
     Event,
@@ -27,6 +28,15 @@ from radar.models import (
 from radar.normalize import canonicalize, guess_event_type, normalize_name
 from radar.storage import Store
 
+# Registry of insight-producing connectors. Each module exposes ``collect(fetcher, name)`` and a
+# ``*_URL`` constant. Adding a source is one entry here plus a connector module (NFR-05).
+CONNECTORS = {
+    "google_news_rss": (news, "RSS_URL"),
+    "gdelt": (gdelt, "DOC_URL"),
+    "yahoo_finance": (yahoo_finance, "SEARCH_URL"),
+    "sec_edgar": (sec_edgar, "SEARCH_URL"),
+}
+
 
 @dataclass
 class IngestReport:
@@ -37,6 +47,8 @@ class IngestReport:
     dropped_stale: int = 0
     dropped_unmatched: int = 0
     per_connector: dict[str, int] = field(default_factory=dict)
+    insights_total: int = 0
+    insights_new: int = 0
 
 
 def load_seed(settings: Settings) -> list[dict]:
@@ -145,7 +157,8 @@ def run(settings: Settings, limit: int | None = None) -> IngestReport:
                 report.enriched += 1
             companies.append(company)
 
-            for connector, module in (("google_news_rss", news), ("gdelt", gdelt)):
+            for connector in settings.connectors:
+                module, _url_attr = CONNECTORS[connector]
                 candidates = module.collect(fetcher, company.canonical_name)
                 report.per_connector[connector] = report.per_connector.get(connector, 0) + len(
                     candidates
@@ -180,15 +193,19 @@ def run(settings: Settings, limit: int | None = None) -> IngestReport:
     # de-duplicate events by id (same article can appear twice)
     unique_events = {e.event_id: e for e in events}
 
+    run_started = utcnow()
     with Store(settings.resolved_db_path) as store:
         report.companies = store.upsert("companies", companies)
         report.sources = store.upsert("sources", sources.values())
         report.events = store.upsert("events", unique_events.values())
+
+    # Deduplicate events across connectors into distinct insights, and flag new ones.
+    insight_report = build_insights(settings, run_started=run_started)
+    report.insights_total = insight_report.insights_total
+    report.insights_new = insight_report.insights_new
     return report
 
 
 def _connector_url(connector: str) -> str:
-    return {
-        "google_news_rss": news.RSS_URL,
-        "gdelt": gdelt.DOC_URL,
-    }.get(connector, connector)
+    module, attr = CONNECTORS.get(connector, (None, None))
+    return getattr(module, attr) if module else connector

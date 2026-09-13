@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"Schroders launches private markets fund targeting infrastructure debt\", \"link\": \"https://finance.yahoo.example/news/schroders-launches-private-markets-fund-targeting-infrastructure-debt\", \"publisher\": \"Financial Times\", \"providerPublishTime\": 1786968000}, {\"title\": \"Schroders partners with wealth platform to broaden retail distribution\", \"link\": \"https://finance.yahoo.example/news/schroders-partners-with-wealth-platform-to-broaden-retail-distribution\", \"publisher\": \"Citywire\", \"providerPublishTime\": 1784376000}, {\"title\": \"Schroders hires senior team to build out private assets business\", \"link\": \"https://finance.yahoo.example/news/schroders-hires-senior-team-to-build-out-private-assets-business\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1782648000}]}"
+}

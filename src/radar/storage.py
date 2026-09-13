@@ -59,6 +59,28 @@ CREATE TABLE IF NOT EXISTS events (
     classification_confidence DOUBLE,
     collected_at TIMESTAMPTZ
 );
+CREATE TABLE IF NOT EXISTS insights (
+    insight_id VARCHAR PRIMARY KEY,
+    company_id VARCHAR NOT NULL,
+    insight_type VARCHAR NOT NULL,
+    canonical_title VARCHAR NOT NULL,
+    event_date DATE,
+    source_count INTEGER,
+    connectors VARCHAR[],
+    first_seen_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ,
+    is_new BOOLEAN,
+    opportunity_score DOUBLE
+);
+CREATE TABLE IF NOT EXISTS insight_sources (
+    insight_id VARCHAR NOT NULL,
+    connector VARCHAR NOT NULL,
+    publisher VARCHAR,
+    url VARCHAR,
+    event_id VARCHAR NOT NULL,
+    event_date DATE,
+    PRIMARY KEY (insight_id, event_id)
+);
 CREATE TABLE IF NOT EXISTS feature_snapshots (
     company_id VARCHAR NOT NULL,
     snapshot_date DATE NOT NULL,
@@ -108,6 +130,8 @@ TABLES: Sequence[str] = (
     "companies",
     "sources",
     "events",
+    "insights",
+    "insight_sources",
     "feature_snapshots",
     "scores",
     "product_relevance",

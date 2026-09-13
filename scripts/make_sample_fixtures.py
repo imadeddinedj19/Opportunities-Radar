@@ -170,6 +170,46 @@ def build_wikipedia(company: str, summary: str) -> str:
     })
 
 
+def unix_days_ago(days_ago: int) -> int:
+    # seconds since epoch for 12:00 on the dated day
+    from datetime import datetime, timezone
+    dt = datetime(2026, 9, 1, 12, 0, 0, tzinfo=timezone.utc) - timedelta(days=days_ago)
+    return int(dt.timestamp())
+
+
+def build_yahoo(items: list[tuple[str, int, str]]) -> str:
+    # Yahoo reports the SAME headlines as Google News/GDELT -> exercises cross-source dedup.
+    news = [
+        {
+            "title": title,
+            "link": f"https://finance.yahoo.example/news/{slugify(title)}",
+            "publisher": pub,
+            "providerPublishTime": unix_days_ago(days_ago),
+        }
+        for title, days_ago, pub in items[:3]
+    ]
+    return json.dumps({"news": news})
+
+
+def build_edgar(company: str, items: list[tuple[str, int, str]]) -> str:
+    # An 8-K current report corresponding to the first (acquisition) story, plus an annual report.
+    # These get their own distinct insights (a filing has a generic title, not the news headline).
+    _title, days_ago, _pub = items[0]
+    hits = [
+        {
+            "_id": f"0000000000-26-{100000 + i}:doc.htm",
+            "_source": {
+                "display_names": [f"{company} (CIK 0000000000)"],
+                "file_date": (date(2026, 9, 1) - timedelta(days=day)).isoformat(),
+                "root_form": form,
+                "url": f"https://www.sec.gov/Archives/edgar/data/0/{slugify(company)}-{form}.htm",
+            },
+        }
+        for i, (form, day) in enumerate([("8-K", days_ago), ("10-K", 100)])
+    ]
+    return json.dumps({"hits": {"hits": hits}})
+
+
 def main() -> None:
     for company, (qid, emp, listed, domain, summary, items) in COMPANIES.items():
         write("wikidata", f"search-{company}",
@@ -184,6 +224,10 @@ def main() -> None:
               "https://news.google.com/rss/search", build_rss(company, items))
         write("gdelt", f"gdelt-{company}",
               "https://api.gdeltproject.org/api/v2/doc/doc", build_gdelt(company, items))
+        write("yahoo_finance", f"yahoo-{company}",
+              "https://query2.finance.yahoo.com/v1/finance/search", build_yahoo(items))
+        write("sec_edgar", f"edgar-{company}",
+              "https://efts.sec.gov/LATEST/search-index", build_edgar(company, items))
     total = sum(1 for _ in FIX.rglob("*.json"))
     print(f"wrote {total} fixture files under {FIX}")
 

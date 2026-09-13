@@ -159,6 +159,40 @@ class Event(BaseModel):
     collected_at: datetime = Field(default_factory=utcnow)
 
 
+class Insight(BaseModel):
+    """A distinct, deduplicated signal about a company.
+
+    Several raw ``Event`` records from different connectors that describe the *same* underlying
+    happening ("Partners Group acquires X" reported by Google News, GDELT and Yahoo Finance)
+    are collapsed into ONE insight. The connectors that reported it are kept as InsightSource
+    rows, so the insight always carries its provenance. ``is_new`` marks insights first seen on
+    the most recent pipeline run - the basis of the Daily Insights view.
+    """
+
+    insight_id: str
+    company_id: str
+    insight_type: EventType = EventType.UNCLASSIFIED
+    canonical_title: str
+    event_date: date | None = None
+    source_count: int = 1
+    connectors: list[str] = Field(default_factory=list)
+    first_seen_at: datetime = Field(default_factory=utcnow)
+    last_seen_at: datetime = Field(default_factory=utcnow)
+    is_new: bool = True
+    opportunity_score: float | None = None  # filled once S3 scoring exists
+
+
+class InsightSource(BaseModel):
+    """One source that reported an insight (the 'mentioning the source' part of the ask)."""
+
+    insight_id: str
+    connector: str
+    publisher: str | None = None
+    url: str | None = None
+    event_id: str
+    event_date: date | None = None
+
+
 # ---- Reserved for later segments -------------------------------------------------------
 
 
@@ -231,6 +265,8 @@ __all__ = [
     "Explanation",
     "FeatureSnapshot",
     "HttpUrl",
+    "Insight",
+    "InsightSource",
     "OutcomeLabel",
     "ProductFamily",
     "ProductRelevance",

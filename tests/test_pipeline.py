@@ -46,4 +46,5 @@ def test_events_carry_provisional_type_and_provenance(offline_settings):
         )
         assert (pg["event_type"] == "acquisition").any()
         assert pg["mention_verified"].all()          # FR-05 mention verification
-        assert set(pg["connector"]) == {"google_news_rss", "gdelt"}  # multiple sources
+        # multiple independent sources feed the same company
+        assert {"google_news_rss", "gdelt", "yahoo_finance"}.issubset(set(pg["connector"]))

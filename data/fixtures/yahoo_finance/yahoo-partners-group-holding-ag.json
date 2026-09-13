@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"Partners Group acquires US-based infrastructure services platform for $1.2bn\", \"link\": \"https://finance.yahoo.example/news/partners-group-acquires-us-based-infrastructure-services-platform-for-1-2bn\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1787227200}, {\"title\": \"Partners Group launches new evergreen private markets fund for wealth clients\", \"link\": \"https://finance.yahoo.example/news/partners-group-launches-new-evergreen-private-markets-fund-for-wealth-clients\", \"publisher\": \"Bloomberg\", \"providerPublishTime\": 1785672000}, {\"title\": \"Partners Group expands into Japan with new Tokyo office\", \"link\": \"https://finance.yahoo.example/news/partners-group-expands-into-japan-with-new-tokyo-office\", \"publisher\": \"Financial Times\", \"providerPublishTime\": 1783512000}]}"
+}

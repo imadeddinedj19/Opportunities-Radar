@@ -1,0 +1,7 @@
+{
+  "url": "https://query2.finance.yahoo.com/v1/finance/search",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"news\": [{\"title\": \"Amundi launches new range of active ETFs across European markets\", \"link\": \"https://finance.yahoo.example/news/amundi-launches-new-range-of-active-etfs-across-european-markets\", \"publisher\": \"Financial Times\", \"providerPublishTime\": 1787572800}, {\"title\": \"Amundi acquires majority stake in Asian fintech distribution platform\", \"link\": \"https://finance.yahoo.example/news/amundi-acquires-majority-stake-in-asian-fintech-distribution-platform\", \"publisher\": \"Reuters\", \"providerPublishTime\": 1786104000}, {\"title\": \"Amundi expands ESG data capabilities with new partnership\", \"link\": \"https://finance.yahoo.example/news/amundi-expands-esg-data-capabilities-with-new-partnership\", \"publisher\": \"Citywire\", \"providerPublishTime\": 1784116800}]}"
+}

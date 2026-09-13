@@ -1,5 +1,5 @@
 from radar.models import Company, SizeBand
-from radar.storage import Store
+from radar.storage import TABLES, Store
 
 
 def _company(cid="x", aliases=("x",)):
@@ -20,4 +20,4 @@ def test_export_writes_all_tables(tmp_path):
     s.upsert("companies", [_company()])
     paths = s.export(tmp_path, fmt="csv")
     assert (tmp_path / "companies.csv").exists()
-    assert len(paths) == 8
+    assert len(paths) == len(TABLES)
