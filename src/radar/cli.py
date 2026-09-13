@@ -55,6 +55,7 @@ def ingest(
         table.add_row(f"Candidates from {connector}", str(n))
     table.add_row("[bold]Distinct insights[/bold]", str(report.insights_total))
     table.add_row("[bold]New insights this run[/bold]", str(report.insights_new))
+    table.add_row("Feature values written (S2)", str(report.features_written))
     console.print(table)
     console.print("See them with [bold]radar insights[/bold] (add --new for only the new ones).")
 
@@ -176,6 +177,60 @@ def insights(
                 f"{r['source_count']} ({conns})",
                 flag + str(r["canonical_title"])[:60],
             )
+        console.print(t)
+
+
+@app.command()
+def features(
+    company: str | None = typer.Option(None, help="Show the feature vector for one company."),
+    top: int = typer.Option(15, help="When no company given, rank this many companies."),
+    by: str = typer.Option("recency_score", help="Feature to rank by (e.g. recency_score)."),
+) -> None:
+    """S2 features: per-company model-ready numbers (intensity, recency, fit, similarity)."""
+    settings = get_settings()
+    with Store(settings.resolved_db_path) as store:
+        if store.count("feature_snapshots") == 0:
+            console.print("[dim]No features yet. Run `radar ingest` first.[/dim]")
+            return
+        if company:
+            df = store.df(
+                """
+                SELECT f.feature_name, f.value
+                FROM feature_snapshots f JOIN companies c USING (company_id)
+                WHERE lower(c.canonical_name) LIKE lower(?)
+                ORDER BY f.feature_name
+                """,
+                [f"%{company}%"],
+            )
+            if df.empty:
+                console.print(f"[red]No features for[/red] {company!r}")
+                raise typer.Exit(1)
+            t = Table(title=f"Features for {company}")
+            t.add_column("feature")
+            t.add_column("value", justify="right")
+            for _, r in df.iterrows():
+                t.add_row(str(r["feature_name"]), f"{r['value']:.4g}")
+            console.print(t)
+            return
+        # ranking view: pivot one feature across companies
+        df = store.df(
+            """
+            SELECT c.canonical_name AS company, c.segment, f.value
+            FROM feature_snapshots f JOIN companies c USING (company_id)
+            WHERE f.feature_name = ?
+            ORDER BY f.value DESC LIMIT ?
+            """,
+            [by, int(top)],
+        )
+        if df.empty:
+            console.print(f"[red]No feature named[/red] {by!r}")
+            raise typer.Exit(1)
+        t = Table(title=f"Companies ranked by {by}")
+        t.add_column("company")
+        t.add_column("segment")
+        t.add_column(by, justify="right")
+        for _, r in df.iterrows():
+            t.add_row(str(r["company"])[:30], str(r["segment"]), f"{r['value']:.4g}")
         console.print(t)
 
 

@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from radar.config import Settings
+from radar.features import build_features
 from radar.ingest import gdelt, news, sec_edgar, wikidata, wikipedia, yahoo_finance
 from radar.ingest.client import Fetcher
 from radar.insights import build_insights
@@ -49,6 +50,7 @@ class IngestReport:
     per_connector: dict[str, int] = field(default_factory=dict)
     insights_total: int = 0
     insights_new: int = 0
+    features_written: int = 0
 
 
 def load_seed(settings: Settings) -> list[dict]:
@@ -203,6 +205,10 @@ def run(settings: Settings, limit: int | None = None) -> IngestReport:
     insight_report = build_insights(settings, run_started=run_started)
     report.insights_total = insight_report.insights_total
     report.insights_new = insight_report.insights_new
+
+    # S2: engineer model-ready features from companies + events + insights.
+    feature_report = build_features(settings)
+    report.features_written = feature_report.features_written
     return report
 
 

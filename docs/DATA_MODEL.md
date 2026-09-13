@@ -11,7 +11,7 @@ stable, but are only populated in later segments.
 | **Event** | S1 | A detected public business event (FR-03) | `event_id`, `company_id`, `event_type`, `event_date`, `title`, `url`, `publisher`, `source_id`, `match_method`, `match_confidence`, `mention_verified`, `classification_confidence` |
 | **Insight** | Insights | A distinct, deduplicated signal (one per real happening) | `insight_id`, `company_id`, `insight_type`, `canonical_title`, `event_date`, `source_count`, `connectors`, `first_seen_at`, `last_seen_at`, `is_new`, `opportunity_score` |
 | **InsightSource** | Insights | One source that reported an insight (provenance) | `insight_id`, `connector`, `publisher`, `url`, `event_id`, `event_date` |
-| **FeatureSnapshot** | S2 *(reserved)* | One model feature for a company at a date (FR-06) | `company_id`, `snapshot_date`, `feature_name`, `value`, `feature_version` |
+| **FeatureSnapshot** | S2 | One model feature for a company at a date (FR-06) | `company_id`, `snapshot_date`, `feature_name`, `value`, `feature_version` |
 | **Score** | S3 *(reserved)* | Opportunity score 0-100 (FR-07/08) | `company_id`, `model_version`, `score`, `confidence`, `rank` |
 | **ProductRelevance** | S3 *(reserved)* | Relevant SIX product family (FR-09) | `company_id`, `product_family`, `relevance_score`, `evidence` |
 | **Explanation** | S3 *(reserved)* | Human-readable reasons + evidence (FR-10/11) | `company_id`, `reason`, `supporting_features`, `source_ids` |

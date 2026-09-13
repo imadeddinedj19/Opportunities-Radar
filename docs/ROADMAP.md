@@ -99,30 +99,44 @@ add behind the same insight data.
 
 ---
 
-## S2 - Signals & features: event classification + feature engineering  ⏳ next
+## S2 - Signals & features: feature engineering  ✅ implemented
 
 **Goal.** Convert raw events and company attributes into **model-ready features** (a feature is a
 single numeric input a model reads, e.g. "number of acquisition events in the last 90 days").
 
-**What it covers.** FR-03 (proper event typing), FR-06 (feature engineering), and populates the
-`FeatureSnapshot` table already defined in the data model.
+**What it covers.** FR-06 (feature engineering); populates the `FeatureSnapshot` table.
 
-**Planned build.**
-- Replace the keyword tagger with an NLP classifier: spaCy for entity/keyword extraction and
-  `sentence-transformers` embeddings (vector embeddings = numeric representations of text that
-  capture meaning) for semantic event typing. Deterministic extraction stays separate from any
-  LLM layer (Technical Design §6.3).
-- Feature families: **event intensity** (counts by type), **recency/momentum** (how recent and
-  accelerating the signals are), **company fit** (segment, size, listed status), and
-  **similarity-to-target-profile** (cosine similarity of the company's embedding to a defined
-  "ideal customer" profile).
-- Write one `FeatureSnapshot` row per (company, snapshot_date, feature) for reproducibility.
+**How it's built** (`src/radar/features.py`). For every company, one `FeatureSnapshot` row per
+feature (14 features x 121 companies = ~1,700 values), versioned `s2-v1` and dated for
+reproducibility (NFR-03/07). Feature families:
+- **intensity**: `events_total`, `insights_total`, `relevant_event_count` (acquisition / expansion
+  / product launch / funding / partnership).
+- **recency / momentum**: `events_90d`, `events_180d`, `days_since_last_event`, and
+  `recency_score` (each event weighted by a 45-day half-life, so recent signals count for more).
+- **corroboration**: `sources_max`, `sources_mean` (how many independent sources back the
+  company's insights - the dedup source counts, reused as a feature).
+- **diversity**: `distinct_event_types`.
+- **fit**: `size_rank`, `is_listed`, `has_description`.
+- **profile_similarity**: TF-IDF cosine of the company's public text (segment + description)
+  against a target-customer profile. Fully offline, deterministic, transparent.
 
-**Validation.** Feature table is dense (no all-null features), snapshots are dated, and the
-same input reproduces the same features. Spot-check that high-activity companies score higher on
-intensity/recency than quiet ones.
+`radar features --company "<name>"` shows one company's vector; `radar features --by <feature>`
+ranks companies by it.
 
-**Testing.** Unit tests per feature transformer; a golden-file test on the sample companies.
+**Offline substitution (important).** The Technical Design floated spaCy + sentence-transformer
+embeddings for this segment. Those need pretrained models downloaded from the internet, which the
+build sandbox blocks, so S2 ships **TF-IDF** similarity instead: same question ("does this company
+read like our ideal customer?"), simpler maths, no model download. Swapping in embeddings on a
+networked machine is localized to `tfidf_cosine_to_target` and would also upgrade the Insights
+layer's dedup from fuzzy-title to semantic. Deeper event *classification* beyond the provisional
+keyword tagger is deferred until there are labels to learn from (the external POC has none yet).
+
+**Validation.** Feature table is dense (every company has every feature), snapshots are dated and
+versioned, features reproduce exactly on a re-run, `profile_similarity` stays in 0-1, and companies
+with events outrank quiet ones on `recency_score`.
+
+**Testing.** `tests/test_features.py`: TF-IDF ranking, density + dating, signal-tracks-reality,
+and a determinism check.
 
 ---
 
