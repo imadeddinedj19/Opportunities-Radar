@@ -11,7 +11,18 @@ each company's opportunity relevance and explain *why* it was flagged, with the 
 The whole POC runs **outside** the SIX corporate environment and uses public data only.
 See `docs/ROADMAP.md` for the segment plan and the current status.
 
-## Quick start
+## Run on Windows without typing (easiest)
+
+1. Install Python 3.11+ from python.org (tick **"Add python.exe to PATH"** on the first screen).
+2. Download this repo as a ZIP (green **Code** button → **Download ZIP**) and extract it.
+3. Open the extracted folder until you can see `setup_and_run.bat`, then **double-click it**.
+   It installs everything and opens the sample dashboard in your browser.
+4. For real data, double-click **`run_live_quick_test.bat`** (10 companies, fast) and then
+   **`run_live.bat`** (all companies, slower). Each opens the refreshed dashboard when done.
+
+The scripts create their own isolated environment and need no configuration or API keys.
+
+## Quick start (command line)
 
 ```bash
 uv venv && uv pip install -e ".[dev]"      # or: python -m venv .venv && pip install -e ".[dev]"
