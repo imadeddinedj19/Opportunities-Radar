@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://reuters.example/partners-group-acquires-us-based-infrastructure-services-platform-for-1-2bn\", \"title\": \"Partners Group acquires US-based infrastructure services platform for $1.2bn\", \"seendate\": \"20260819T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}, {\"url\": \"https://bloomberg.example/partners-group-launches-new-evergreen-private-markets-fund-for-wealth-clients\", \"title\": \"Partners Group launches new evergreen private markets fund for wealth clients\", \"seendate\": \"20260801T120000Z\", \"domain\": \"bloomberg.example\", \"language\": \"English\"}, {\"url\": \"https://financial-times.example/partners-group-expands-into-japan-with-new-tokyo-office\", \"title\": \"Partners Group expands into Japan with new Tokyo office\", \"seendate\": \"20260707T120000Z\", \"domain\": \"financial-times.example\", \"language\": \"English\"}]}"
+}

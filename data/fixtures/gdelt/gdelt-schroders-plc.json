@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://financial-times.example/schroders-launches-private-markets-fund-targeting-infrastructure-debt\", \"title\": \"Schroders launches private markets fund targeting infrastructure debt\", \"seendate\": \"20260816T120000Z\", \"domain\": \"financial-times.example\", \"language\": \"English\"}, {\"url\": \"https://citywire.example/schroders-partners-with-wealth-platform-to-broaden-retail-distribution\", \"title\": \"Schroders partners with wealth platform to broaden retail distribution\", \"seendate\": \"20260717T120000Z\", \"domain\": \"citywire.example\", \"language\": \"English\"}, {\"url\": \"https://reuters.example/schroders-hires-senior-team-to-build-out-private-assets-business\", \"title\": \"Schroders hires senior team to build out private assets business\", \"seendate\": \"20260627T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}]}"
+}

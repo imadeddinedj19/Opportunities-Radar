@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://reuters.example/euronext-acquires-nordic-clearing-business-to-expand-post-trade\", \"title\": \"Euronext acquires Nordic clearing business to expand post-trade\", \"seendate\": \"20260813T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}, {\"url\": \"https://bloomberg.example/euronext-launches-new-suite-of-esg-indices-and-data-products\", \"title\": \"Euronext launches new suite of ESG indices and data products\", \"seendate\": \"20260727T120000Z\", \"domain\": \"bloomberg.example\", \"language\": \"English\"}, {\"url\": \"https://financial-times.example/euronext-expands-data-services-division-with-analytics-acquisition\", \"title\": \"Euronext expands data services division with analytics acquisition\", \"seendate\": \"20260617T120000Z\", \"domain\": \"financial-times.example\", \"language\": \"English\"}]}"
+}

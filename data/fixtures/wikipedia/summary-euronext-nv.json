@@ -1,0 +1,7 @@
+{
+  "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Euronext_NV",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"extract\": \"Euronext N.V. is a pan-European bourse operating regulated markets in several countries, and a provider of market data and post-trade services.\", \"content_urls\": {\"desktop\": {\"page\": \"https://en.wikipedia.org/wiki/Euronext_NV\"}}}"
+}

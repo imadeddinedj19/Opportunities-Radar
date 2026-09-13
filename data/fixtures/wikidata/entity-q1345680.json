@@ -1,0 +1,7 @@
+{
+  "url": "https://www.wikidata.org/wiki/Special:EntityData/Q1345680.json",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"entities\": {\"Q1345680\": {\"claims\": {\"P1128\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"amount\": \"+2200\"}}}}], \"P856\": [{\"mainsnak\": {\"datavalue\": {\"value\": \"https://euronext.com\"}}}], \"P17\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q39\"}}}}], \"P452\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q806718\"}}}}], \"P414\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q1332144\"}}}}]}, \"labels\": {\"en\": {\"value\": \"Q1345680\"}}}}}"
+}

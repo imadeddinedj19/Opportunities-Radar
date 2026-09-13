@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://bloomberg.example/blackrock-acquires-private-markets-data-provider-to-expand-aladdin\", \"title\": \"BlackRock acquires private markets data provider to expand Aladdin\", \"seendate\": \"20260821T120000Z\", \"domain\": \"bloomberg.example\", \"language\": \"English\"}, {\"url\": \"https://reuters.example/blackrock-launches-tokenized-money-market-fund-on-public-blockchain\", \"title\": \"BlackRock launches tokenized money market fund on public blockchain\", \"seendate\": \"20260803T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}, {\"url\": \"https://financial-times.example/blackrock-expands-active-etf-lineup-in-europe\", \"title\": \"BlackRock expands active ETF lineup in Europe\", \"seendate\": \"20260710T120000Z\", \"domain\": \"financial-times.example\", \"language\": \"English\"}]}"
+}

@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://financial-times.example/amundi-launches-new-range-of-active-etfs-across-european-markets\", \"title\": \"Amundi launches new range of active ETFs across European markets\", \"seendate\": \"20260823T120000Z\", \"domain\": \"financial-times.example\", \"language\": \"English\"}, {\"url\": \"https://reuters.example/amundi-acquires-majority-stake-in-asian-fintech-distribution-platform\", \"title\": \"Amundi acquires majority stake in Asian fintech distribution platform\", \"seendate\": \"20260806T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}, {\"url\": \"https://citywire.example/amundi-expands-esg-data-capabilities-with-new-partnership\", \"title\": \"Amundi expands ESG data capabilities with new partnership\", \"seendate\": \"20260714T120000Z\", \"domain\": \"citywire.example\", \"language\": \"English\"}]}"
+}

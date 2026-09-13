@@ -1,0 +1,7 @@
+{
+  "url": "https://en.wikipedia.org/api/rest_v1/page/summary/BlackRock_Inc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"extract\": \"BlackRock, Inc. is an American multinational investment management corporation, the world's largest asset manager by assets under management.\", \"content_urls\": {\"desktop\": {\"page\": \"https://en.wikipedia.org/wiki/BlackRock_Inc\"}}}"
+}

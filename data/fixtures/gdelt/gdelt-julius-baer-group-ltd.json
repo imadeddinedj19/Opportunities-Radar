@@ -1,0 +1,7 @@
+{
+  "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"articles\": [{\"url\": \"https://reuters.example/julius-baer-expands-wealth-management-presence-in-the-middle-east\", \"title\": \"Julius Baer expands wealth management presence in the Middle East\", \"seendate\": \"20260811T120000Z\", \"domain\": \"reuters.example\", \"language\": \"English\"}, {\"url\": \"https://finews.example/julius-baer-launches-digital-advisory-platform-for-next-generation-clients\", \"title\": \"Julius Baer launches digital advisory platform for next-generation clients\", \"seendate\": \"20260722T120000Z\", \"domain\": \"finews.example\", \"language\": \"English\"}, {\"url\": \"https://bloomberg.example/julius-baer-faces-regulatory-review-over-lending-practices\", \"title\": \"Julius Baer faces regulatory review over lending practices\", \"seendate\": \"20260702T120000Z\", \"domain\": \"bloomberg.example\", \"language\": \"English\"}]}"
+}

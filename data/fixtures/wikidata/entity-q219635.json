@@ -1,0 +1,7 @@
+{
+  "url": "https://www.wikidata.org/wiki/Special:EntityData/Q219635.json",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"entities\": {\"Q219635\": {\"claims\": {\"P1128\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"amount\": \"+19800\"}}}}], \"P856\": [{\"mainsnak\": {\"datavalue\": {\"value\": \"https://blackrock.com\"}}}], \"P17\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q39\"}}}}], \"P452\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q806718\"}}}}], \"P414\": [{\"mainsnak\": {\"datavalue\": {\"value\": {\"id\": \"Q1332144\"}}}}]}, \"labels\": {\"en\": {\"value\": \"Q219635\"}}}}}"
+}

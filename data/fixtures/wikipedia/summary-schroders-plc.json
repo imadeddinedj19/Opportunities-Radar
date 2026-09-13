@@ -1,0 +1,7 @@
+{
+  "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Schroders_plc",
+  "params": {},
+  "status_code": 200,
+  "retrieved_at": "2026-09-01T09:00:00+00:00",
+  "body": "{\"extract\": \"Schroders plc is a British multinational asset management company headquartered in London.\", \"content_urls\": {\"desktop\": {\"page\": \"https://en.wikipedia.org/wiki/Schroders_plc\"}}}"
+}

@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+# Local analytical storage and raw collections are reproducible from the pipeline; never commit them.
+data/db/
+data/raw/
+data/exports/
+.env
