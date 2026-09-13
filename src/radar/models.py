@@ -96,6 +96,8 @@ class Company(BaseModel):
     employees: int | None = None
     listed: bool | None = None
     description: str | None = None
+    region: str | None = Field(default=None, description="Sales region: UK/US/EMEA/Asia/Strategic")
+    strategic: bool = Field(default=False, description="A strategic (key) account")
     wikidata_id: str | None = None
     enrichment_confidence: float | None = None
     seed_source: str = "manual_seed"

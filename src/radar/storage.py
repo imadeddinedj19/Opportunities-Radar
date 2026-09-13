@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS companies (
     employees INTEGER,
     listed BOOLEAN,
     description VARCHAR,
+    region VARCHAR,
+    strategic BOOLEAN,
     wikidata_id VARCHAR,
     enrichment_confidence DOUBLE,
     seed_source VARCHAR,

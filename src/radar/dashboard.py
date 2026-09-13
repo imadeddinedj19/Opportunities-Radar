@@ -49,7 +49,7 @@ def collect_data(store: Store) -> dict:
     companies = store.df(
         """
         SELECT c.company_id, c.canonical_name, c.country, c.segment, c.size_band, c.listed,
-               c.description, c.enrichment_confidence,
+               c.region, c.strategic, c.description, c.enrichment_confidence,
                s.score, s.rank, s.confidence
         FROM companies c JOIN scores s USING (company_id)
         WHERE s.model_version = ?
@@ -97,6 +97,8 @@ def collect_data(store: Store) -> dict:
         signals = ins_by.get(cid, [])
         rows.append({
             "id": cid, "name": c.canonical_name, "country": c.country or "",
+            "region": c.region or "EMEA",
+            "strategic": (False if pd.isna(c.strategic) else bool(c.strategic)),
             "segment": c.segment or "", "size_band": c.size_band or "unknown",
             "listed": (None if pd.isna(c.listed) else bool(c.listed)),
             "description": (c.description or ""),
@@ -124,6 +126,14 @@ def collect_data(store: Store) -> dict:
     mix: dict[str, int] = {}
     for r in rows[:max(with_signals, 10)]:
         mix[r["best_product_label"]] = mix.get(r["best_product_label"], 0) + 1
+    # per-region: count and how many are flagged (have signals), in the team's region order
+    region_order = ["UK", "US", "EMEA", "Asia", "Strategic Accounts"]
+    by_region = {}
+    for reg in region_order:
+        members = [r for r in rows if r["region"] == reg]
+        if members:
+            by_region[reg] = {"n": len(members),
+                              "flagged": sum(1 for r in members if r["n_signals"] > 0)}
 
     return {
         "meta": {"generated": datetime.now().strftime("%d %b %Y %H:%M"),
@@ -134,7 +144,8 @@ def collect_data(store: Store) -> dict:
             "new_insights": store.df("SELECT count(*) n FROM insights WHERE is_new").iloc[0]["n"],
             "top_avg": top_avg, "events": counts["events"],
         },
-        "dist": dist, "by_source": by_source, "mix": mix,
+        "dist": dist, "by_source": by_source, "mix": mix, "by_region": by_region,
+        "regions": [r for r in region_order if r in by_region],
         "segments": sorted({r["segment"] for r in rows if r["segment"]}),
         "countries": sorted({r["country"] for r in rows if r["country"]}),
         "companies": rows,
@@ -174,11 +185,12 @@ def _row_html(r: dict) -> str:
         f'<tr class="row" data-id="{_esc(r["id"])}" data-score="{r["score"]}" '
         f'data-rank="{r["rank"]}" data-name="{_esc(r["name"].lower())}" '
         f'data-segment="{_esc(r["segment"])}" data-country="{_esc(r["country"])}" '
-        f'data-signals="{sig}" tabindex="0">'
+        f'data-region="{_esc(r["region"])}" data-signals="{sig}" tabindex="0">'
         f'<td class="c-rank">{r["rank"]}</td>'
-        f'<td class="c-co"><span class="co-name">{_esc(r["name"])}</span>'
+        f'<td class="c-co"><span class="co-name">{_esc(r["name"])}'
+        f'{" ★" if r.get("strategic") else ""}</span>'
         f'<span class="co-seg">{_esc(r["segment"].replace("_"," "))}</span></td>'
-        f'<td class="c-ctry">{_esc(r["country"])}</td>'
+        f'<td class="c-region">{_esc(r["region"])}</td>'
         f'<td class="c-score"><span class="score-bar"><span class="score-fill" '
         f'style="width:{r["score"]}%"></span></span><span class="score-num">{r["score"]:.1f}</span></td>'
         f'<td class="c-conf"><span class="conf conf-{conf}">{conf}</span></td>'
@@ -244,10 +256,12 @@ def _render(data: dict) -> str:
                  sorted(data["by_source"].items(), key=lambda x: -x[1])]
     src_svg = _bars_svg(src_pairs, lambda _l: "var(--accent)")
     dist_svg = _dist_svg(data["dist"])
+    region_pairs = [(reg, d["n"]) for reg, d in data["by_region"].items()]
+    region_svg = _bars_svg(region_pairs, lambda _l: "var(--accent)")
 
     seg_opts = "".join(f'<option value="{_esc(x)}">{_esc(x.replace("_"," "))}</option>'
                        for x in data["segments"])
-    ctry_opts = "".join(f'<option value="{_esc(x)}">{_esc(x)}</option>' for x in data["countries"])
+    reg_opts = "".join(f'<option value="{_esc(x)}">{_esc(x)}</option>' for x in data["regions"])
     blob = json.dumps({"companies": data["companies"]}, ensure_ascii=False)
 
     return f"""<title>Opportunity Radar</title>
@@ -285,6 +299,7 @@ def _render(data: dict) -> str:
 </section>
 
 <section class="charts">
+  <div class="chart"><h3>Companies by region</h3>{region_svg}</div>
   <div class="chart"><h3>Score distribution</h3>{dist_svg}</div>
   <div class="chart"><h3>Insights by source</h3>{src_svg}</div>
   <div class="chart"><h3>Suggested product mix</h3>{mix_svg}</div>
@@ -294,8 +309,8 @@ def _render(data: dict) -> str:
   <section class="listwrap">
     <div class="controls">
       <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><line x1="11" y1="11" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.6"/></svg><input id="q" placeholder="Search company or segment…" autocomplete="off"></label>
+      <select id="freg"><option value="">All regions</option>{reg_opts}</select>
       <select id="fseg"><option value="">All segments</option>{seg_opts}</select>
-      <select id="fctry"><option value="">All countries</option>{ctry_opts}</select>
       <button class="chip" id="fsig" type="button">Signals only</button>
       <label class="slider">min score <input type="range" id="fscore" min="0" max="90" value="0" step="5"><span id="fscorev">0</span></label>
     </div>
@@ -305,7 +320,7 @@ def _render(data: dict) -> str:
         <thead><tr>
           <th data-sort="rank" class="th-rank">#</th>
           <th data-sort="name">Company</th>
-          <th data-sort="country">Ctry</th>
+          <th data-sort="region">Region</th>
           <th data-sort="score" class="th-active">Score ▾</th>
           <th data-sort="conf">Conf.</th>
           <th data-sort="product">Suggested product</th>
@@ -401,7 +416,7 @@ table.radar{width:100%;border-collapse:collapse;font-size:13px}
 .c-rank{font-family:var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;width:34px}
 .co-name{display:block;font-weight:600}
 .co-seg{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:capitalize}
-.c-ctry{font-family:var(--mono);color:var(--ink-2)}
+.c-region{font-family:var(--mono);color:var(--ink-2);font-size:12px}
 .c-score{white-space:nowrap;width:130px}
 .score-bar{display:inline-block;width:62px;height:7px;border-radius:999px;background:var(--surface-2);vertical-align:middle;overflow:hidden;margin-right:8px;border:1px solid var(--border-2)}
 .score-fill{display:block;height:100%;background:var(--accent);border-radius:999px}
@@ -483,7 +498,7 @@ _JS = r"""
     document.getElementById('detail').innerHTML =
       '<div class="d-rank">RANK #'+c.rank+'</div>'
       +'<div class="d-name">'+esc(c.name)+'</div>'
-      +'<div class="d-meta">'+esc(c.country)+' · '+esc((c.segment||'').replace(/_/g,' '))+' · '+esc(c.size_band)+' · '+listedTxt+'</div>'
+      +'<div class="d-meta">'+esc(c.region)+(c.strategic?' ★':'')+' · '+esc(c.country)+' · '+esc((c.segment||'').replace(/_/g,' '))+' · '+esc(c.size_band)+' · '+listedTxt+'</div>'
       +'<div class="d-scorewrap"><div class="gauge" style="--v:'+c.score+';position:relative"><b>'+c.score.toFixed(0)+'</b></div>'
       +'<div class="d-scoremeta"><div class="big">'+c.score.toFixed(1)+' / 100</div>'
       +'<div class="sub">confidence: <b>'+conf+'</b></div>'
@@ -500,32 +515,32 @@ _JS = r"""
     r.addEventListener('keydown', function(e){ if(e.key==='Enter'){ renderDetail(r.dataset.id); } });
   });
   // filters
-  var q=document.getElementById('q'), fseg=document.getElementById('fseg'), fctry=document.getElementById('fctry');
+  var q=document.getElementById('q'), fseg=document.getElementById('fseg'), freg=document.getElementById('freg');
   var fsig=document.getElementById('fsig'), fscore=document.getElementById('fscore'), fscorev=document.getElementById('fscorev');
   var showing=document.getElementById('showing'); var sigOnly=false;
   function apply(){
-    var term=(q.value||'').trim().toLowerCase(), seg=fseg.value, ctry=fctry.value, mn=+fscore.value, shown=0;
+    var term=(q.value||'').trim().toLowerCase(), seg=fseg.value, reg=freg.value, mn=+fscore.value, shown=0;
     fscorev.textContent=mn;
     rows.forEach(function(r){
       var ok = (!term || r.dataset.name.indexOf(term)>=0 || r.dataset.segment.indexOf(term)>=0)
-        && (!seg || r.dataset.segment===seg) && (!ctry || r.dataset.country===ctry)
+        && (!seg || r.dataset.segment===seg) && (!reg || r.dataset.region===reg)
         && (!sigOnly || r.dataset.signals==='1') && (+r.dataset.score >= mn);
       r.hidden=!ok; if(ok) shown++;
     });
     showing.textContent='Showing '+shown+' of '+rows.length+' companies';
   }
-  [q,fseg,fctry,fscore].forEach(function(el){ el.addEventListener('input',apply); });
+  [q,fseg,freg,fscore].forEach(function(el){ el.addEventListener('input',apply); });
   fsig.addEventListener('click',function(){ sigOnly=!sigOnly; fsig.setAttribute('aria-pressed',sigOnly); apply(); });
   // sort
   var sortKey='score', sortDir=-1;
   document.querySelectorAll('thead th').forEach(function(th){
     th.addEventListener('click', function(){
       var k=th.dataset.sort; if(!k) return;
-      if(k===sortKey){ sortDir*=-1; } else { sortKey=k; sortDir = (k==='name'||k==='segment'||k==='country'||k==='product')?1:-1; }
+      if(k===sortKey){ sortDir*=-1; } else { sortKey=k; sortDir = (k==='name'||k==='segment'||k==='region'||k==='product')?1:-1; }
       document.querySelectorAll('thead th').forEach(function(x){ x.classList.remove('th-active'); x.textContent=x.textContent.replace(/ [▾▴]$/,''); });
       th.classList.add('th-active'); th.textContent=th.textContent.replace(/ [▾▴]$/,'')+(sortDir<0?' ▾':' ▴');
       var val=function(r){
-        if(k==='name'||k==='segment'||k==='country') return r.dataset[k]||'';
+        if(k==='name'||k==='segment'||k==='region') return r.dataset[k]||'';
         if(k==='product') return (byId[r.dataset.id]||{}).best_product_label||'';
         if(k==='conf') return +(byId[r.dataset.id]||{}).confidence||0;
         return +r.dataset[k]||0;

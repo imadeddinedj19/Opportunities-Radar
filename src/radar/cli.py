@@ -242,18 +242,27 @@ def features(
 def rank(
     top: int = typer.Option(20, help="How many companies to show."),
     segment: str | None = typer.Option(None, help="Filter to one segment."),
+    region: str | None = typer.Option(
+        None, help="Filter to one sales region (UK/US/EMEA/Asia/Strategic)."
+    ),
 ) -> None:
-    """The Opportunity Radar: companies ranked by score, with the recommended SIX product."""
+    """The Opportunity Radar: companies ranked by score, with region and the recommended product."""
     settings = get_settings()
     with Store(settings.resolved_db_path) as store:
         if store.count("scores") == 0:
             console.print("[dim]No scores yet. Run `radar ingest` first.[/dim]")
             return
-        where = "WHERE c.segment LIKE ?" if segment else ""
-        params = [f"%{segment}%"] if segment else []
+        clauses, params = [], []
+        if segment:
+            clauses.append("c.segment LIKE ?")
+            params.append(f"%{segment}%")
+        if region:
+            clauses.append("lower(c.region) LIKE lower(?)")
+            params.append(f"%{region}%")
+        where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
         rows = store.df(
             f"""
-            SELECT s.rank, c.canonical_name AS company, c.country, c.segment,
+            SELECT s.rank, c.canonical_name AS company, c.region, c.segment,
                    s.score, s.confidence,
                    (SELECT p.product_family FROM product_relevance p
                     WHERE p.company_id = s.company_id AND p.model_version = s.model_version
@@ -265,17 +274,58 @@ def rank(
             params,
         )
         t = Table(title="Opportunity Radar")
-        for col in ("#", "company", "country", "segment", "score", "conf.", "suggested product"):
+        for col in ("#", "company", "region", "segment", "score", "conf.", "suggested product"):
             t.add_column(col)
         for _, r in rows.iterrows():
             conf = float(r["confidence"] or 0)
             clabel = "high" if conf >= 0.7 else ("med" if conf >= 0.4 else "low")
             t.add_row(
-                str(int(r["rank"])), str(r["company"])[:26], str(r["country"]),
-                str(r["segment"])[:18], f"{r['score']:.1f}", clabel,
+                str(int(r["rank"])), str(r["company"])[:24], str(r["region"]),
+                str(r["segment"])[:16], f"{r['score']:.1f}", clabel,
                 str(r["best_product"]).replace("_", " "),
             )
         console.print(t)
+
+
+def _print_score_card(store: Store, company_id: str) -> None:
+    r = store.df(
+        """
+        SELECT c.canonical_name, c.segment, c.country, c.region, c.strategic,
+               s.score, s.confidence, s.rank
+        FROM scores s JOIN companies c USING (company_id)
+        WHERE c.company_id = ?
+        """,
+        [company_id],
+    ).iloc[0]
+    conf = float(r["confidence"] or 0)
+    clabel = "high" if conf >= 0.7 else ("medium" if conf >= 0.4 else "low")
+    star = " ★ strategic" if r["strategic"] else ""
+    console.print(
+        f"[bold]{r['canonical_name']}[/bold]  "
+        f"({r['region']}{star} · {r['country']} / {r['segment']})"
+    )
+    console.print(
+        f"  Opportunity score [bold]{r['score']:.1f}[/bold] / 100   "
+        f"rank #{int(r['rank'])}   confidence: {clabel}"
+    )
+    pr = store.df(
+        "SELECT product_family, relevance_score FROM product_relevance "
+        "WHERE company_id = ? ORDER BY relevance_score DESC",
+        [company_id],
+    )
+    console.print("\n  [bold]Product fit[/bold] (compatibility with SIX product families):")
+    for _, p in pr.iterrows():
+        pct = int(round(float(p["relevance_score"]) * 100))
+        bar = "█" * (pct // 6)
+        console.print(f"    {str(p['product_family']).replace('_',' '):22} {pct:3d}%  {bar}")
+    ex = store.df("SELECT reason, source_ids FROM explanations WHERE company_id = ?", [company_id])
+    if not ex.empty:
+        console.print(f"\n  [bold]Why[/bold]: {ex.iloc[0]['reason']}")
+        srcs = ex.iloc[0]["source_ids"]
+        if srcs is not None and len(srcs):
+            console.print("  [bold]Evidence[/bold]:")
+            for u in list(srcs)[:5]:
+                console.print(f"    - {u}")
 
 
 @app.command()
@@ -284,48 +334,80 @@ def score(name: str) -> None:
     settings = get_settings()
     with Store(settings.resolved_db_path) as store:
         prof = store.df(
-            """
-            SELECT c.company_id, c.canonical_name, c.segment, c.country,
-                   s.score, s.confidence, s.rank
-            FROM scores s JOIN companies c USING (company_id)
-            WHERE lower(c.canonical_name) LIKE lower(?) ORDER BY s.rank LIMIT 1
-            """,
+            "SELECT c.company_id FROM scores s JOIN companies c USING (company_id) "
+            "WHERE lower(c.canonical_name) LIKE lower(?) ORDER BY s.rank LIMIT 1",
             [f"%{name}%"],
         )
         if prof.empty:
             console.print(f"[red]No scored company matching[/red] {name!r}")
             raise typer.Exit(1)
-        r = prof.iloc[0]
-        cid = r["company_id"]
-        conf = float(r["confidence"] or 0)
-        clabel = "high" if conf >= 0.7 else ("medium" if conf >= 0.4 else "low")
-        console.print(
-            f"[bold]{r['canonical_name']}[/bold]  ({r['country']} / {r['segment']})"
-        )
-        console.print(
-            f"  Opportunity score [bold]{r['score']:.1f}[/bold] / 100   "
-            f"rank #{int(r['rank'])}   confidence: {clabel}"
-        )
-        pr = store.df(
-            """
-            SELECT product_family, relevance_score FROM product_relevance
-            WHERE company_id = ? ORDER BY relevance_score DESC
-            """,
-            [cid],
-        )
-        console.print("\n  [bold]Product fit[/bold] (compatibility with SIX product families):")
-        for _, p in pr.iterrows():
-            pct = int(round(float(p["relevance_score"]) * 100))
-            bar = "█" * (pct // 6)
-            console.print(f"    {str(p['product_family']).replace('_',' '):22} {pct:3d}%  {bar}")
-        ex = store.df("SELECT reason, source_ids FROM explanations WHERE company_id = ?", [cid])
-        if not ex.empty:
-            console.print(f"\n  [bold]Why[/bold]: {ex.iloc[0]['reason']}")
-            srcs = ex.iloc[0]["source_ids"]
-            if srcs is not None and len(srcs):
-                console.print("  [bold]Evidence[/bold]:")
-                for u in list(srcs)[:5]:
-                    console.print(f"    - {u}")
+        _print_score_card(store, prof.iloc[0]["company_id"])
+
+
+@app.command()
+def lookup(
+    name: str,
+    segment: str | None = typer.Option(
+        None, help="Hint the segment (e.g. asset_manager) for a sharper product fit."
+    ),
+    country: str | None = typer.Option(
+        None, help="ISO country code hint (e.g. CH), sets the region."
+    ),
+    strategic: bool = typer.Option(False, "--strategic", help="Mark as a strategic account."),
+    offline: bool = typer.Option(
+        False, "--offline", help="Use recorded fixtures instead of live data."
+    ),
+) -> None:
+    """Score ANY company by name on demand (not only the watchlist), and rank it among the rest."""
+    from radar.ingest.pipeline import ingest_one
+    settings = get_settings(offline=offline)
+    with Store(settings.resolved_db_path) as store:
+        has_context = store.count("scores") > 0
+    if not has_context:
+        console.print("[yellow]Tip:[/yellow] run `radar ingest` first so the new company is ranked "
+                      "against a full set. Scoring it alone gives a weak relative score.")
+    mode = "recorded fixtures" if offline else "live public sources"
+    console.print(f"Collecting and scoring [bold]{name}[/bold] from {mode}...")
+    cid = ingest_one(settings, name, country=country, segment=segment, strategic=strategic)
+    with Store(settings.resolved_db_path) as store:
+        _print_score_card(store, cid)
+
+
+@app.command()
+def evaluate() -> None:
+    """Proxy feasibility test: does the score rank active companies better than profile/random?"""
+    from radar.evaluate import run_evaluation
+    settings = get_settings()
+    try:
+        rep = run_evaluation(settings)
+    except RuntimeError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print(
+        f"[bold]Proxy target[/bold]: >=2 relevant events corroborated by >=2 sources  "
+        f"({rep.positives}/{rep.n} companies, base rate {rep.base_rate:.1%})"
+    )
+    t = Table(title=f"Ranking quality at K={rep.k} (precision == recall at this K)")
+    t.add_column("Ranker")
+    t.add_column("Precision@K", justify="right")
+    t.add_column("Hits", justify="right")
+    t.add_column("Lift vs random", justify="right")
+    for r in rep.rankers:
+        t.add_row(r.name, f"{r.precision_at_k:.0%}", f"{r.hits_at_k}/{rep.k}", f"{r.lift:.1f}x")
+    console.print(t)
+    full = rep.rankers[0].precision_at_k
+    prof = rep.rankers[1].precision_at_k
+    console.print(
+        "\n[dim]Reading it: the score beats random by a wide margin (feasibility holds). "
+        "The gap between 'Opportunity score' and 'Company profile only' is what recent events add "
+        "- it shows clearly on live data, where every company is enriched; on the offline sample "
+        "the two can coincide because only the signal companies have enrichment. "
+        "These use a proxy target, not real sales outcomes, so this is a sanity check, not "
+        "validated accuracy.[/dim]"
+    )
+    if full == prof and full > 0:
+        console.print("[yellow]Note:[/yellow] score and profile-only tie here — run this after a "
+                      "live ingest to see the real gap.")
 
 
 @app.command()

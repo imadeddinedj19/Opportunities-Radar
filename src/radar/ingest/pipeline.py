@@ -27,6 +27,7 @@ from radar.models import (
     utcnow,
 )
 from radar.normalize import canonicalize, guess_event_type, normalize_name
+from radar.regions import resolve_region
 from radar.scoring import run_scoring
 from radar.storage import Store
 
@@ -63,15 +64,19 @@ def load_seed(settings: Settings) -> list[dict]:
 def build_company(row: dict) -> Company:
     seed_name = row["seed_name"].strip()
     normalized = normalize_name(seed_name)
+    country = (row.get("country") or None)
+    strategic = str(row.get("strategic") or "").strip() in {"1", "true", "True", "yes", "y"}
     return Company(
         company_id=stable_id("company", normalized),
         canonical_name=canonicalize(seed_name),
         normalized_name=normalized,
         aliases=[seed_name],
         domain=(row.get("homepage") or None),
-        country=(row.get("country") or None),
+        country=country,
         segment=(row.get("segment") or None),
         description=(row.get("notes") or None),
+        strategic=strategic,
+        region=resolve_region(country, strategic),
         seed_source="manual_seed",
     )
 
@@ -221,3 +226,81 @@ def run(settings: Settings, limit: int | None = None) -> IngestReport:
 def _connector_url(connector: str) -> str:
     module, attr = CONNECTORS.get(connector, (None, None))
     return getattr(module, attr) if module else connector
+
+
+def ingest_one(
+    settings: Settings,
+    name: str,
+    country: str | None = None,
+    segment: str | None = None,
+    strategic: bool = False,
+) -> str:
+    """Collect + score a single ad-hoc company on demand and merge it into the ranked set.
+
+    Used by `radar lookup` so a salesperson can score any company by name, in or out of the seed
+    list. The company is enriched and its events collected like any other, stored alongside the
+    existing companies, then insights / features / scores are rebuilt for the whole set so the new
+    company gets a meaningful *relative* score and rank. Returns its company_id.
+    """
+    # If this company is already known (e.g. it's in the seed), keep its existing seed attributes
+    # unless the caller overrides them - so a lookup never wipes country / segment / strategic.
+    cid = stable_id("company", normalize_name(name))
+    with Store(settings.resolved_db_path) as store:
+        prior = store.df(
+            "SELECT country, segment, strategic FROM companies WHERE company_id = ?", [cid]
+        )
+    if not prior.empty:
+        p = prior.iloc[0]
+        country = country or (None if p["country"] is None else str(p["country"]))
+        segment = segment or (None if p["segment"] is None else str(p["segment"]))
+        strategic = strategic or bool(p["strategic"]) if p["strategic"] is not None else strategic
+    row = {
+        "seed_name": name, "country": country or "", "segment": segment or "",
+        "homepage": "", "notes": "", "strategic": "1" if strategic else "0",
+    }
+    company = build_company(row)
+    fetcher = Fetcher(settings)
+    sources: dict[str, Source] = {}
+    events: list[Event] = []
+    cutoff = date.today() - timedelta(days=settings.event_lookback_days)
+    try:
+        enrich = wikidata.enrich(fetcher, company.canonical_name)
+        wiki = wikipedia.describe(fetcher, company.canonical_name)
+        if enrich or wiki:
+            _apply_enrichment(company, enrich, wiki)
+        for connector in settings.connectors:
+            module, _url_attr = CONNECTORS[connector]
+            candidates = module.collect(fetcher, company.canonical_name)
+            if not candidates:
+                continue
+            src = Source.build(
+                connector=connector, url=_connector_url(connector), retrieved_at=utcnow(),
+                query=candidates[0].get("query"), from_fixture=settings.offline,
+            )
+            sources[src.source_id] = src
+            for cand in candidates:
+                if not cand.get("title"):
+                    continue
+                ed = cand.get("event_date")
+                if ed is not None and ed < cutoff:
+                    continue
+                matched, mconf = _mentions_company(company, cand)
+                cand["mention_verified"] = matched
+                cand["match_confidence"] = mconf
+                if not matched:
+                    continue
+                events.append(_make_event(company, cand, connector, src))
+    finally:
+        fetcher.close()
+
+    unique_events = {e.event_id: e for e in events}
+    run_started = utcnow()
+    with Store(settings.resolved_db_path) as store:
+        store.upsert("companies", [company])
+        store.upsert("sources", sources.values())
+        store.upsert("events", unique_events.values())
+
+    build_insights(settings, run_started=run_started)
+    build_features(settings)
+    run_scoring(settings)
+    return company.company_id
