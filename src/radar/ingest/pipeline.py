@@ -27,6 +27,7 @@ from radar.models import (
     utcnow,
 )
 from radar.normalize import canonicalize, guess_event_type, normalize_name
+from radar.scoring import run_scoring
 from radar.storage import Store
 
 # Registry of insight-producing connectors. Each module exposes ``collect(fetcher, name)`` and a
@@ -51,6 +52,7 @@ class IngestReport:
     insights_total: int = 0
     insights_new: int = 0
     features_written: int = 0
+    scored: int = 0
 
 
 def load_seed(settings: Settings) -> list[dict]:
@@ -209,6 +211,10 @@ def run(settings: Settings, limit: int | None = None) -> IngestReport:
     # S2: engineer model-ready features from companies + events + insights.
     feature_report = build_features(settings)
     report.features_written = feature_report.features_written
+
+    # S3: blend features + product compatibility into an opportunity score + product fit.
+    score_report = run_scoring(settings)
+    report.scored = score_report.scored
     return report
 
 

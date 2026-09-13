@@ -23,6 +23,8 @@ radar insights                             # the Daily Insights view (distinct, 
 radar insights --new                       # only insights first seen on the latest run
 radar features --company "Partners Group"  # S2 model-ready feature vector for one company
 radar features --by recency_score          # rank companies by a feature
+radar rank                                 # the Opportunity Radar: ranked list + suggested product
+radar score "Partners Group"               # one company: score, product-fit, reasons, evidence
 radar status                               # what is in the database now
 radar company "Partners Group"             # drill into one company
 radar export                               # CSV files under data/exports/

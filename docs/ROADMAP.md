@@ -140,34 +140,51 @@ and a determinism check.
 
 ---
 
-## S3 - Scoring, ranking & product fit + explainability  ⏳
+## S3 - Scoring, ranking & product fit + explainability  ✅ implemented
 
 **Goal.** Produce the 0-100 opportunity score, the ranked list, the relevant SIX product
 family, and a human-readable explanation with evidence.
 
 **What it covers.** FR-07 (scoring), FR-08 (ranking), FR-09 (product relevance), FR-10
-(explanation), FR-11 (evidence), FR-13 (baseline vs ML comparison).
+(explanation), FR-11 (evidence). FR-13 (baseline vs ML) is partially covered: the transparent
+baseline ships; the ML comparison waits on labels (below).
 
-**Planned build.**
-- **Baseline** (transparent, business-readable): weighted-rule score + cosine similarity to the
-  target profile. This is the benchmark that answers "does ML actually add value?".
-- **ML model**: logistic regression as an interpretable benchmark, then gradient-boosted trees
-  (XGBoost / LightGBM) as the advanced model. In the external POC these train on **proxy
-  labels** or a defined relevance benchmark, not real SIX conversions - clearly flagged as such.
-- **Product-relevance layer**: map detected signals to a small controlled taxonomy (Reference
-  Data, Market Data, Funds Data, Corporate Actions, Regulatory/Tax, ESG).
-- **Explainability**: global feature importance + local SHAP-style explanations, plus the
-  evidence list (the actual public sources behind each flagged signal). LLM explanations, if
-  used, must be grounded in stored evidence (anti-hallucination control).
-- **Evaluation framework**: baseline vs ML, with vs without events, static vs temporal,
-  structured vs NLP-enriched - using ranking metrics (Precision@K, and ROC/PR-AUC once real
-  labels exist).
+**How it's built.**
+- **Opportunity score** (`src/radar/scoring.py`) - a transparent weighted blend of TIMING
+  (recency, relevant-event count, source corroboration) and FIT (best product compatibility,
+  profile similarity, company size/listing). Each input is min-max normalized across the scored
+  companies, then blended and scaled to 0-100. Weights are explicit constants, so the number is
+  fully explainable (NFR-04/08). The score is relative to the current batch (a POC simplification).
+- **Product-compatibility layer** (`src/radar/products.py`, FR-09) - the piece the score is built
+  on. Each company is scored against every SIX product family (Reference Data, Market Data, Funds
+  Data, Corporate Actions, Regulatory/Tax, ESG) from three transparent signals: **segment affinity**
+  (what a firm of this kind needs), **event affinity** (what the detected events imply), and
+  **keyword affinity** (product words in its public text). The top family is the recommended
+  product; the full breakdown is shown as per-company percentages. This works even for companies
+  with no news - segment alone yields a recommendation, at low score/confidence.
+- **Ranking** (FR-08): companies ordered by score, rank stored.
+- **Explanation + evidence** (FR-10/11): a plain-language reason naming the top contributing
+  signals and the recommended product, plus the source URLs behind the insights as evidence.
+- **Confidence**: derived from how much evidence backs the company (independent sources +
+  enrichment), surfaced as low / medium / high.
+- CLI: `radar rank` (the Opportunity Radar list with the suggested product per company) and
+  `radar score "<name>"` (score, product-fit breakdown, reasons and evidence for one company).
 
-**Validation.** Flagged companies are demonstrably more relevant than a random sample; top-ranked
-companies show stronger target characteristics than bottom-ranked; every high score has evidence.
+**Baseline vs ML - honest status (FR-13).** The shipped scorer is the **transparent baseline** the
+spec asks for. A supervised ML model (logistic regression, then gradient-boosted trees) needs
+labels, and the external POC has none - only proxy labels would be available. Rather than dress a
+proxy-trained model up as validated, S3 ships the explainable baseline and leaves the ML arm and
+its Precision@K / ROC-AUC evaluation for when approved CRM outcomes exist (a future segment). This
+matches the BRD's "treat V1 as feasibility research."
 
-**Testing.** Deterministic scoring on the sample set; a regression test pinning expected ranks;
-model-vs-baseline comparison reported by a `radar evaluate` command.
+**Validation.** Every company is scored and ranked (unique 1..n), scores stay in 0-100, companies
+with real signals outrank quiet ones, and every scored company gets a product recommendation and
+an explanation. Product mappings sanity-checked (asset manager -> Funds Data, insurer ->
+Regulatory/Tax, exchange -> Market Data).
+
+**Testing.** `tests/test_scoring.py`: product-compatibility mappings, end-to-end scoring
+(coverage, unique ranks, 0-100 bounds), signal-rich outranks quiet, product+explanation present,
+and determinism.
 
 ---
 

@@ -56,8 +56,12 @@ def ingest(
     table.add_row("[bold]Distinct insights[/bold]", str(report.insights_total))
     table.add_row("[bold]New insights this run[/bold]", str(report.insights_new))
     table.add_row("Feature values written (S2)", str(report.features_written))
+    table.add_row("[bold]Companies scored (S3)[/bold]", str(report.scored))
     console.print(table)
-    console.print("See them with [bold]radar insights[/bold] (add --new for only the new ones).")
+    console.print(
+        'Ranked list: [bold]radar rank[/bold]  ·  '
+        'one company: [bold]radar score "<name>"[/bold]'
+    )
 
 
 @app.command()
@@ -232,6 +236,96 @@ def features(
         for _, r in df.iterrows():
             t.add_row(str(r["company"])[:30], str(r["segment"]), f"{r['value']:.4g}")
         console.print(t)
+
+
+@app.command()
+def rank(
+    top: int = typer.Option(20, help="How many companies to show."),
+    segment: str | None = typer.Option(None, help="Filter to one segment."),
+) -> None:
+    """The Opportunity Radar: companies ranked by score, with the recommended SIX product."""
+    settings = get_settings()
+    with Store(settings.resolved_db_path) as store:
+        if store.count("scores") == 0:
+            console.print("[dim]No scores yet. Run `radar ingest` first.[/dim]")
+            return
+        where = "WHERE c.segment LIKE ?" if segment else ""
+        params = [f"%{segment}%"] if segment else []
+        rows = store.df(
+            f"""
+            SELECT s.rank, c.canonical_name AS company, c.country, c.segment,
+                   s.score, s.confidence,
+                   (SELECT p.product_family FROM product_relevance p
+                    WHERE p.company_id = s.company_id AND p.model_version = s.model_version
+                    ORDER BY p.relevance_score DESC LIMIT 1) AS best_product
+            FROM scores s JOIN companies c USING (company_id)
+            {where}
+            ORDER BY s.rank LIMIT {int(top)}
+            """,
+            params,
+        )
+        t = Table(title="Opportunity Radar")
+        for col in ("#", "company", "country", "segment", "score", "conf.", "suggested product"):
+            t.add_column(col)
+        for _, r in rows.iterrows():
+            conf = float(r["confidence"] or 0)
+            clabel = "high" if conf >= 0.7 else ("med" if conf >= 0.4 else "low")
+            t.add_row(
+                str(int(r["rank"])), str(r["company"])[:26], str(r["country"]),
+                str(r["segment"])[:18], f"{r['score']:.1f}", clabel,
+                str(r["best_product"]).replace("_", " "),
+            )
+        console.print(t)
+
+
+@app.command()
+def score(name: str) -> None:
+    """One company's opportunity score: product-fit breakdown, reasons and evidence."""
+    settings = get_settings()
+    with Store(settings.resolved_db_path) as store:
+        prof = store.df(
+            """
+            SELECT c.company_id, c.canonical_name, c.segment, c.country,
+                   s.score, s.confidence, s.rank
+            FROM scores s JOIN companies c USING (company_id)
+            WHERE lower(c.canonical_name) LIKE lower(?) ORDER BY s.rank LIMIT 1
+            """,
+            [f"%{name}%"],
+        )
+        if prof.empty:
+            console.print(f"[red]No scored company matching[/red] {name!r}")
+            raise typer.Exit(1)
+        r = prof.iloc[0]
+        cid = r["company_id"]
+        conf = float(r["confidence"] or 0)
+        clabel = "high" if conf >= 0.7 else ("medium" if conf >= 0.4 else "low")
+        console.print(
+            f"[bold]{r['canonical_name']}[/bold]  ({r['country']} / {r['segment']})"
+        )
+        console.print(
+            f"  Opportunity score [bold]{r['score']:.1f}[/bold] / 100   "
+            f"rank #{int(r['rank'])}   confidence: {clabel}"
+        )
+        pr = store.df(
+            """
+            SELECT product_family, relevance_score FROM product_relevance
+            WHERE company_id = ? ORDER BY relevance_score DESC
+            """,
+            [cid],
+        )
+        console.print("\n  [bold]Product fit[/bold] (compatibility with SIX product families):")
+        for _, p in pr.iterrows():
+            pct = int(round(float(p["relevance_score"]) * 100))
+            bar = "█" * (pct // 6)
+            console.print(f"    {str(p['product_family']).replace('_',' '):22} {pct:3d}%  {bar}")
+        ex = store.df("SELECT reason, source_ids FROM explanations WHERE company_id = ?", [cid])
+        if not ex.empty:
+            console.print(f"\n  [bold]Why[/bold]: {ex.iloc[0]['reason']}")
+            srcs = ex.iloc[0]["source_ids"]
+            if srcs is not None and len(srcs):
+                console.print("  [bold]Evidence[/bold]:")
+                for u in list(srcs)[:5]:
+                    console.print(f"    - {u}")
 
 
 @app.command()
