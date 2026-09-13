@@ -329,6 +329,28 @@ def score(name: str) -> None:
 
 
 @app.command()
+def dashboard(
+    out: str | None = typer.Option(
+        None, help="Output HTML path (default data/exports/dashboard.html)."
+    ),
+) -> None:
+    """Build the interactive Opportunity Radar dashboard (a self-contained HTML file)."""
+    from pathlib import Path
+
+    from radar.dashboard import build_dashboard
+    settings = get_settings()
+    try:
+        path = build_dashboard(settings, Path(out) if out else None)
+    except RuntimeError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print(f"[green]Dashboard written[/green] to {path}")
+    console.print(
+        "Open it in any browser (no server needed). Regenerate after each `radar ingest`."
+    )
+
+
+@app.command()
 def export(fmt: str = typer.Option("csv", "--format", help="csv or parquet")) -> None:
     """Export every table to data/exports/ (FR-12)."""
     settings = get_settings()

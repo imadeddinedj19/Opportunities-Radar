@@ -188,24 +188,41 @@ and determinism.
 
 ---
 
-## S4 - Radar UI & management demo  ⏳
+## S4 - Radar UI & management demo  ✅ implemented
 
 **Goal.** A simple interface a non-technical sales manager understands in a few minutes
 (NFR-08): pick a company, see its score, signals, product relevance, explanation and evidence.
 
-**What it covers.** FR-12 (dashboard/export), the "Demo" acceptance criterion, and the pitch
-deliverable (Technical Design P6).
+**What it covers.** FR-12 (dashboard), the "Demo" acceptance criterion, and the pitch deliverable.
 
-**Planned build.**
-- **Streamlit** app (Python-native web UI, no front-end code) reading straight from DuckDB:
-  a ranked radar table, a company detail view matching the "Example Output Object" in the
-  Technical Design, and filters by segment/country/score.
-- Polished CSV/XLSX export and a short "limitations + internal-pilot proposal" section.
+**How it's built** (`src/radar/dashboard.py`, `radar dashboard`). A **bespoke, self-contained,
+interactive HTML dashboard** rendered from the scored database:
+- Overview KPI strip and three charts (score distribution, insights by source, suggested-product
+  mix).
+- The **Opportunity Radar** table: every company ranked by score, with a score bar, confidence
+  pill and the suggested SIX product. Live search, segment/country filters, a min-score slider,
+  a "signals only" toggle, and sortable columns - all client-side.
+- A **company detail panel** matching the Technical Design's example output: a score gauge, the
+  product-fit breakdown (compatibility with each SIX product family as bars), the "why flagged"
+  explanation, the evidence sources, and the signal timeline. Clicking any row updates it.
+- Theme-aware (light / dark), responsive to phone width, keyboard-selectable rows.
 
-**Validation.** A manager can select a company and inspect score, signals and product relevance
-without understanding the model. The whole thing runs offline from the local database.
+**Why not Streamlit.** The Technical Design floated Streamlit. Its stock look is exactly the
+generic style to avoid, and it needs a running Python server. The custom dashboard looks bespoke,
+runs by opening a file (nothing to install), and is trivial to hand to management for the demo. A
+Streamlit or web-server front-end can still be added later over the same data if a live,
+always-on surface is wanted.
 
-**Testing.** Smoke tests on the data-access layer behind the UI; manual demo-script walkthrough.
+**Validation.** A manager can pick a company and read its score, signals and product relevance
+without understanding the model; the whole thing runs offline from the local database; a company
+with no news still shows a segment-based product recommendation.
+
+**Testing.** `tests/test_dashboard.py`: the data-assembly shape, valid HTML with every company
+pre-rendered (at-rest content) and an embedded data blob, the top company is signal-rich, and a
+friendly error when there are no scores yet.
+
+**Regenerate after each run:** `radar ingest && radar dashboard`, then open
+`data/exports/dashboard.html`.
 
 ---
 

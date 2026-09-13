@@ -25,6 +25,7 @@ radar features --company "Partners Group"  # S2 model-ready feature vector for o
 radar features --by recency_score          # rank companies by a feature
 radar rank                                 # the Opportunity Radar: ranked list + suggested product
 radar score "Partners Group"               # one company: score, product-fit, reasons, evidence
+radar dashboard                            # build the interactive HTML dashboard (open in a browser)
 radar status                               # what is in the database now
 radar company "Partners Group"             # drill into one company
 radar export                               # CSV files under data/exports/
@@ -75,6 +76,10 @@ src/radar/models.py         the data model (Company, Source, Event, Insight, ...
 src/radar/storage.py        database schema and load/save helpers
 src/radar/ingest/           one connector per public source + the ingest orchestrator
 src/radar/insights.py       cross-source deduplication into distinct insights
+src/radar/features.py       S2 feature engineering (intensity, recency, fit, similarity)
+src/radar/products.py       SIX product-compatibility layer (S3)
+src/radar/scoring.py        S3 opportunity score + ranking + explanations
+src/radar/dashboard.py      S4 interactive HTML dashboard generator
 src/radar/normalize/        company-name normalization and entity resolution (FR-05)
 src/radar/cli.py            the `radar` command-line tool
 tests/                      automated tests (run offline, no internet needed)
