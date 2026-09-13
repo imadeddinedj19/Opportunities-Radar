@@ -181,6 +181,10 @@ def _row_html(r: dict) -> str:
     conf = _conf_label(r["confidence"])
     sig = 1 if r["n_signals"] > 0 else 0
     pfv = r["best_product"].replace("_", "-")
+    seg = r["segment"].replace("_", " ")
+    # show the specific country next to the business type - a region like EMEA is too coarse
+    # when a firm has branches across Europe
+    seg_country = f"{seg} / {r['country']}" if r["country"] else seg
     return (
         f'<tr class="row" data-id="{_esc(r["id"])}" data-score="{r["score"]}" '
         f'data-rank="{r["rank"]}" data-name="{_esc(r["name"].lower())}" '
@@ -189,7 +193,7 @@ def _row_html(r: dict) -> str:
         f'<td class="c-rank">{r["rank"]}</td>'
         f'<td class="c-co"><span class="co-name">{_esc(r["name"])}'
         f'{" ★" if r.get("strategic") else ""}</span>'
-        f'<span class="co-seg">{_esc(r["segment"].replace("_"," "))}</span></td>'
+        f'<span class="co-seg">{_esc(seg_country)}</span></td>'
         f'<td class="c-region">{_esc(r["region"])}</td>'
         f'<td class="c-score"><span class="score-bar"><span class="score-fill" '
         f'style="width:{r["score"]}%"></span></span><span class="score-num">{r["score"]:.1f}</span></td>'
