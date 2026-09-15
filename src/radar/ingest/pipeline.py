@@ -77,7 +77,8 @@ def build_company(row: dict) -> Company:
         description=(row.get("notes") or None),
         strategic=strategic,
         region=resolve_region(country, strategic),
-        seed_source="manual_seed",
+        tier=(row.get("tier") or "warm").strip() or "warm",
+        seed_source=(row.get("seed_source") or "manual_seed"),
     )
 
 
@@ -143,8 +144,11 @@ def _mentions_company(company: Company, cand: dict) -> tuple[bool, float]:
     return (best >= 60.0), round(best / 100, 3)
 
 
-def run(settings: Settings, limit: int | None = None) -> IngestReport:
+def run(settings: Settings, limit: int | None = None,
+        tiers: set[str] | None = None) -> IngestReport:
     seed = load_seed(settings)
+    if tiers:
+        seed = [r for r in seed if (r.get("tier") or "warm").strip() in tiers]
     if limit is not None:
         seed = seed[:limit]
     fetcher = Fetcher(settings)

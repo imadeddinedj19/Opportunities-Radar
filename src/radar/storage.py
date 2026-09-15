@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS companies (
     description VARCHAR,
     region VARCHAR,
     strategic BOOLEAN,
+    tier VARCHAR,
     wikidata_id VARCHAR,
     enrichment_confidence DOUBLE,
     seed_source VARCHAR,

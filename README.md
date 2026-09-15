@@ -35,6 +35,7 @@ radar insights --new                       # only insights first seen on the lat
 radar features --company "Partners Group"  # S2 model-ready feature vector for one company
 radar features --by recency_score          # rank companies by a feature
 radar rank                                 # the Opportunity Radar: ranked list + suggested product
+radar movers                               # what changed since the last run (new / rising / falling)
 radar score "Partners Group"               # one company: score, product-fit, reasons, evidence
 radar rank --region UK                     # rank one sales region (UK/US/EMEA/Asia/Strategic)
 radar lookup "Some Company Ltd"            # score ANY company on demand (add --offline to test)
@@ -55,6 +56,25 @@ Insight sources (business events): **Google News RSS**, **GDELT**, **Yahoo Finan
 
 All are public and need no API key. Which insight sources run is controlled by `RADAR_CONNECTORS`
 (or `connectors` in `src/radar/config.py`). SEC EDGAR covers US-listed companies only.
+
+## Growing the universe (thousands of companies)
+
+The seed ships with ~120 companies for demos. For real research, import a large, real universe
+from the free **GLEIF Golden Copy** (the open register of every legal entity with an LEI):
+
+```bash
+# download the Golden Copy CSV from gleif.org, then:
+radar import-universe gleif-golden-copy.csv --per-region 1200
+radar ingest --tier hot        # process the hand-picked accounts first (fast)
+radar ingest                   # process everything (slow at scale - use tiers/scheduling)
+```
+
+Imported companies get tier `cold`; the curated seed is `hot`. `radar ingest --tier hot,warm`
+processes a subset, which is how thousands of companies stay tractable under polite rate limits.
+GLEIF has no industry field, so it cannot filter to financial firms alone - cap per region,
+pre-filter the file, or later plug in an industry source (a D&B Direct+ adapter is stubbed for
+teams that license it; note D&B redistribution needs its own licence). The engine itself scales:
+scoring 5,000 companies runs in seconds; the real limit is live fetching, not compute.
 
 ## The watchlist and sales regions
 

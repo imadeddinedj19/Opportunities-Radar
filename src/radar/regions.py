@@ -21,6 +21,8 @@ REGION_ASIA = "Asia"
 REGION_STRATEGIC = "Strategic Accounts"
 
 REGIONS = (REGION_UK, REGION_US, REGION_EMEA, REGION_ASIA, REGION_STRATEGIC)
+# The four geographic buckets (Strategic Accounts is a cross-cutting tier, not a geography).
+GEO_REGIONS = (REGION_UK, REGION_US, REGION_EMEA, REGION_ASIA)
 
 # ISO 3166-1 alpha-2 country -> geographic region.
 _ASIA = {"SG", "JP", "HK", "CN", "IN", "KR", "TW", "MY", "TH", "ID", "PH", "VN", "AU", "NZ"}

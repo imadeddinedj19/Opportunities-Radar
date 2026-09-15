@@ -98,6 +98,7 @@ class Company(BaseModel):
     description: str | None = None
     region: str | None = Field(default=None, description="Sales region: UK/US/EMEA/Asia/Strategic")
     strategic: bool = Field(default=False, description="A strategic (key) account")
+    tier: str = Field(default="warm", description="Refresh tier: hot/warm/cold (tiered scale)")
     wikidata_id: str | None = None
     enrichment_confidence: float | None = None
     seed_source: str = "manual_seed"

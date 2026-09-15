@@ -1,122 +1,122 @@
-seed_name,country,segment,homepage,notes,strategic
-Partners Group Holding AG,CH,private_markets,partnersgroup.com,Swiss private markets asset manager,1
-Julius Baer Group Ltd,CH,wealth_management,juliusbaer.com,Swiss private bank,0
-Vontobel Holding AG,CH,wealth_management,vontobel.com,Swiss wealth & asset management,0
-Swissquote Group Holding SA,CH,online_broker,swissquote.com,Swiss online broker,0
-Temenos AG,CH,fintech_software,temenos.com,Core banking software,0
-GAM Holding AG,CH,asset_manager,gam.com,Independent asset manager,0
-Bque Cantonale Vaudoise,CH,retail_bank,bcv.ch,Cantonal bank,0
-Cembra Money Bank AG,CH,consumer_finance,cembra.ch,Consumer finance,0
-DWS Group GmbH,DE,asset_manager,dws.com,Deutsche Bank asset management arm,0
-Allianz Global Investors,DE,asset_manager,allianzgi.com,Large asset manager,0
-Deutsche Boerse AG,DE,exchange,deutsche-boerse.com,Exchange & market infrastructure,1
-Commerzbank AG,DE,universal_bank,commerzbank.de,Universal bank,0
-N26 GmbH,DE,neobank,n26.com,Digital bank,0
-Amundi SA,FR,asset_manager,amundi.com,Largest European asset manager,1
-Euronext NV,FR,exchange,euronext.com,Pan-European exchange,0
-Societe Generale SA,FR,universal_bank,societegenerale.com,Universal bank,0
-BNP Paribas Asset Management,FR,asset_manager,bnpparibas-am.com,Asset management arm,0
-Groupe BPCE,FR,universal_bank,bpce.fr,Banking group,0
-Intesa Sanpaolo SpA,IT,universal_bank,intesasanpaolo.com,Italian bank,0
-Anima Holding SpA,IT,asset_manager,animaholding.it,Italian asset manager,0
-Banca Generali SpA,IT,wealth_management,bancagenerali.it,Italian private bank,0
-Azimut Holding SpA,IT,asset_manager,azimut-group.com,Italian asset manager,0
-ING Groep NV,NL,universal_bank,ing.com,Dutch bank,0
-Robeco Institutional AM,NL,asset_manager,robeco.com,Dutch asset manager,0
-Flow Traders NV,NL,market_maker,flowtraders.com,ETF market maker,0
-Nordea Bank Abp,FI,universal_bank,nordea.com,Nordic bank,0
-Evli Oyj,FI,asset_manager,evli.com,Finnish asset manager,0
-SEB AB,SE,universal_bank,seb.se,Swedish bank,0
-EQT AB,SE,private_markets,eqtgroup.com,Private equity,0
-Avanza Bank Holding AB,SE,online_broker,avanza.se,Swedish online broker,0
-Schroders plc,GB,asset_manager,schroders.com,UK asset manager,0
-abrdn plc,GB,asset_manager,abrdn.com,UK asset manager,0
-London Stock Exchange Group plc,GB,exchange,lseg.com,Exchange & data business,0
-Hargreaves Lansdown plc,GB,online_broker,hl.co.uk,UK investment platform,0
-Man Group plc,GB,asset_manager,man.com,UK hedge fund manager,0
-Ninety One plc,GB,asset_manager,ninetyone.com,UK/SA asset manager,0
-BlackRock Inc,US,asset_manager,blackrock.com,World's largest asset manager,1
-State Street Corporation,US,custodian,statestreet.com,Custody & fund servicing,0
-Nasdaq Inc,US,exchange,nasdaq.com,Exchange & market technology,0
-Interactive Brokers Group Inc,US,online_broker,interactivebrokers.com,Global broker,0
-UBS Group AG,CH,universal_bank,ubs.com,Global wealth manager,1
-Zurich Insurance Group AG,CH,insurer,zurich.com,Global insurer,0
-Swiss Re AG,CH,reinsurer,swissre.com,Reinsurance,0
-Baloise Holding AG,CH,insurer,baloise.com,Swiss insurer,0
-Helvetia Holding AG,CH,insurer,helvetia.com,Swiss insurer,0
-St Galler Kantonalbank AG,CH,retail_bank,sgkb.ch,Cantonal bank,0
-Luzerner Kantonalbank AG,CH,retail_bank,lukb.ch,Cantonal bank,0
-VZ Holding AG,CH,wealth_management,vermoegenszentrum.ch,Independent financial advisor,0
-Leonteq AG,CH,structured_products,leonteq.com,Structured products,0
-SIX Group AG,CH,market_infrastructure,six-group.com,Financial market infrastructure,0
-Deutsche Bank AG,DE,universal_bank,db.com,Universal bank,0
-Allianz SE,DE,insurer,allianz.com,Global insurer,1
-Munich Re,DE,reinsurer,munichre.com,Reinsurance,0
-Hannover Rueck SE,DE,reinsurer,hannover-rueck.de,Reinsurance,0
-Talanx AG,DE,insurer,talanx.com,Insurance group,0
-Wuestenrot & Wuerttembergische,DE,insurer,ww-ag.com,Insurance & building society,0
-Deutsche Pfandbriefbank AG,DE,specialist_lender,pfandbriefbank.com,Real estate lender,0
-Aareal Bank AG,DE,specialist_lender,aareal-bank.com,Property lender,0
-Hypoport SE,DE,fintech_software,hypoport.de,Credit platform,0
-JDC Group AG,DE,insurtech,jdcgroup.de,Insurance platform,0
-AXA SA,FR,insurer,axa.com,Global insurer,0
-CNP Assurances SA,FR,insurer,cnp.fr,Life insurer,0
-Credit Agricole SA,FR,universal_bank,credit-agricole.com,Banking group,0
-Natixis,FR,corporate_bank,natixis.com,Corporate & investment bank,0
-Worldline SA,FR,payments,worldline.com,Payments technology,0
-Edenred SE,FR,payments,edenred.com,Prepaid corporate services,0
-Rothschild & Co,FR,advisory,rothschildandco.com,Advisory & wealth,0
-UniCredit SpA,IT,universal_bank,unicreditgroup.eu,Pan-European bank,0
-Mediobanca SpA,IT,investment_bank,mediobanca.com,Investment bank,0
-Assicurazioni Generali SpA,IT,insurer,generali.com,Global insurer,0
-Poste Italiane SpA,IT,diversified_financial,posteitaliane.it,Postal & financial services,0
-Nexi SpA,IT,payments,nexi.it,Payments,0
-FinecoBank SpA,IT,online_broker,finecobank.com,Online bank & broker,0
-ABN AMRO Bank NV,NL,universal_bank,abnamro.com,Dutch bank,0
-NN Group NV,NL,insurer,nn-group.com,Insurance & asset management,0
-Aegon NV,NL,insurer,aegon.com,Life insurance & pensions,0
-ASR Nederland NV,NL,insurer,asrnl.com,Dutch insurer,0
-Adyen NV,NL,payments,adyen.com,Payments platform,0
-Van Lanschot Kempen NV,NL,wealth_management,vanlanschotkempen.com,Wealth management,0
-Danske Bank A/S,DK,universal_bank,danskebank.com,Nordic bank,0
-Tryg A/S,DK,insurer,tryg.com,Nordic insurer,0
-Sampo Oyj,FI,insurer,sampo.com,Nordic insurer,0
-Mandatum Oyj,FI,asset_manager,mandatum.fi,Life & asset management,0
-DNB Bank ASA,NO,universal_bank,dnb.no,Norwegian bank,0
-Storebrand ASA,NO,insurer,storebrand.no,Insurance & pensions,0
-Svenska Handelsbanken AB,SE,universal_bank,handelsbanken.com,Swedish bank,0
-Swedbank AB,SE,universal_bank,swedbank.com,Swedish bank,0
-Skandinaviska Enskilda Banken,SE,universal_bank,sebgroup.com,Nordic bank,0
-Investor AB,SE,investment_company,investorab.com,Investment company,0
-Kinnevik AB,SE,investment_company,kinnevik.com,Investment company,0
-Legal & General Group plc,GB,insurer,legalandgeneral.com,Insurance & asset management,0
-Aviva plc,GB,insurer,aviva.com,Insurance & asset management,0
-Prudential plc,GB,insurer,prudentialplc.com,Insurance & asset management,0
-M&G plc,GB,asset_manager,mandg.com,Savings & investments,0
-St Jamess Place plc,GB,wealth_management,sjp.co.uk,Wealth management,0
-Quilter plc,GB,wealth_management,quilter.com,Wealth management,0
-Rathbones Group plc,GB,wealth_management,rathbones.com,Wealth management,0
-IntegraFin Holdings plc,GB,platform,integrafin.co.uk,Investment platform,0
-Wise plc,GB,payments,wise.com,Cross-border payments,0
-Barclays plc,GB,universal_bank,barclays.com,Universal bank,0
-Morgan Stanley,US,investment_bank,morganstanley.com,Investment bank & wealth,0
-Goldman Sachs Group Inc,US,investment_bank,goldmansachs.com,Investment bank,0
-Charles Schwab Corporation,US,online_broker,schwab.com,Broker & custody,0
-Franklin Resources Inc,US,asset_manager,franklinresources.com,Franklin Templeton,0
-T Rowe Price Group Inc,US,asset_manager,troweprice.com,Asset manager,0
-Invesco Ltd,US,asset_manager,invesco.com,Asset manager,0
-Northern Trust Corporation,US,custodian,northerntrust.com,Custody & asset servicing,0
-Bank of New York Mellon,US,custodian,bny.com,Custody bank,0
-Intercontinental Exchange Inc,US,exchange,ice.com,Exchanges & data,0
-CME Group Inc,US,exchange,cmegroup.com,Derivatives exchange,0
-MarketAxess Holdings Inc,US,electronic_trading,marketaxess.com,Fixed income trading,0
-Tradeweb Markets Inc,US,electronic_trading,tradeweb.com,Electronic trading,0
-MSCI Inc,US,index_data,msci.com,Indexes & analytics,0
-S&P Global Inc,US,ratings_data,spglobal.com,Ratings & data,0
-Moodys Corporation,US,ratings_data,moodys.com,Ratings & analytics,0
-FactSet Research Systems Inc,US,financial_data,factset.com,Financial data & analytics,0
-Morningstar Inc,US,financial_data,morningstar.com,Investment research & data,0
-Coinbase Global Inc,US,crypto_exchange,coinbase.com,Crypto exchange,0
-DBS Group Holdings Ltd,SG,universal_bank,dbs.com,Singapore bank,1
-Julius Baer Nomura,JP,investment_bank,nomura.com,Japanese investment bank,0
-Macquarie Group Ltd,AU,investment_bank,macquarie.com,Investment bank & asset management,1
+seed_name,country,segment,homepage,notes,strategic,tier
+Partners Group Holding AG,CH,private_markets,partnersgroup.com,Swiss private markets asset manager,1,hot
+Julius Baer Group Ltd,CH,wealth_management,juliusbaer.com,Swiss private bank,0,hot
+Vontobel Holding AG,CH,wealth_management,vontobel.com,Swiss wealth & asset management,0,hot
+Swissquote Group Holding SA,CH,online_broker,swissquote.com,Swiss online broker,0,hot
+Temenos AG,CH,fintech_software,temenos.com,Core banking software,0,hot
+GAM Holding AG,CH,asset_manager,gam.com,Independent asset manager,0,hot
+Bque Cantonale Vaudoise,CH,retail_bank,bcv.ch,Cantonal bank,0,hot
+Cembra Money Bank AG,CH,consumer_finance,cembra.ch,Consumer finance,0,hot
+DWS Group GmbH,DE,asset_manager,dws.com,Deutsche Bank asset management arm,0,hot
+Allianz Global Investors,DE,asset_manager,allianzgi.com,Large asset manager,0,hot
+Deutsche Boerse AG,DE,exchange,deutsche-boerse.com,Exchange & market infrastructure,1,hot
+Commerzbank AG,DE,universal_bank,commerzbank.de,Universal bank,0,hot
+N26 GmbH,DE,neobank,n26.com,Digital bank,0,hot
+Amundi SA,FR,asset_manager,amundi.com,Largest European asset manager,1,hot
+Euronext NV,FR,exchange,euronext.com,Pan-European exchange,0,hot
+Societe Generale SA,FR,universal_bank,societegenerale.com,Universal bank,0,hot
+BNP Paribas Asset Management,FR,asset_manager,bnpparibas-am.com,Asset management arm,0,hot
+Groupe BPCE,FR,universal_bank,bpce.fr,Banking group,0,hot
+Intesa Sanpaolo SpA,IT,universal_bank,intesasanpaolo.com,Italian bank,0,hot
+Anima Holding SpA,IT,asset_manager,animaholding.it,Italian asset manager,0,hot
+Banca Generali SpA,IT,wealth_management,bancagenerali.it,Italian private bank,0,hot
+Azimut Holding SpA,IT,asset_manager,azimut-group.com,Italian asset manager,0,hot
+ING Groep NV,NL,universal_bank,ing.com,Dutch bank,0,hot
+Robeco Institutional AM,NL,asset_manager,robeco.com,Dutch asset manager,0,hot
+Flow Traders NV,NL,market_maker,flowtraders.com,ETF market maker,0,hot
+Nordea Bank Abp,FI,universal_bank,nordea.com,Nordic bank,0,hot
+Evli Oyj,FI,asset_manager,evli.com,Finnish asset manager,0,hot
+SEB AB,SE,universal_bank,seb.se,Swedish bank,0,hot
+EQT AB,SE,private_markets,eqtgroup.com,Private equity,0,hot
+Avanza Bank Holding AB,SE,online_broker,avanza.se,Swedish online broker,0,hot
+Schroders plc,GB,asset_manager,schroders.com,UK asset manager,0,hot
+abrdn plc,GB,asset_manager,abrdn.com,UK asset manager,0,hot
+London Stock Exchange Group plc,GB,exchange,lseg.com,Exchange & data business,0,hot
+Hargreaves Lansdown plc,GB,online_broker,hl.co.uk,UK investment platform,0,hot
+Man Group plc,GB,asset_manager,man.com,UK hedge fund manager,0,hot
+Ninety One plc,GB,asset_manager,ninetyone.com,UK/SA asset manager,0,hot
+BlackRock Inc,US,asset_manager,blackrock.com,World's largest asset manager,1,hot
+State Street Corporation,US,custodian,statestreet.com,Custody & fund servicing,0,hot
+Nasdaq Inc,US,exchange,nasdaq.com,Exchange & market technology,0,hot
+Interactive Brokers Group Inc,US,online_broker,interactivebrokers.com,Global broker,0,hot
+UBS Group AG,CH,universal_bank,ubs.com,Global wealth manager,1,hot
+Zurich Insurance Group AG,CH,insurer,zurich.com,Global insurer,0,hot
+Swiss Re AG,CH,reinsurer,swissre.com,Reinsurance,0,hot
+Baloise Holding AG,CH,insurer,baloise.com,Swiss insurer,0,hot
+Helvetia Holding AG,CH,insurer,helvetia.com,Swiss insurer,0,hot
+St Galler Kantonalbank AG,CH,retail_bank,sgkb.ch,Cantonal bank,0,hot
+Luzerner Kantonalbank AG,CH,retail_bank,lukb.ch,Cantonal bank,0,hot
+VZ Holding AG,CH,wealth_management,vermoegenszentrum.ch,Independent financial advisor,0,hot
+Leonteq AG,CH,structured_products,leonteq.com,Structured products,0,hot
+SIX Group AG,CH,market_infrastructure,six-group.com,Financial market infrastructure,0,hot
+Deutsche Bank AG,DE,universal_bank,db.com,Universal bank,0,hot
+Allianz SE,DE,insurer,allianz.com,Global insurer,1,hot
+Munich Re,DE,reinsurer,munichre.com,Reinsurance,0,hot
+Hannover Rueck SE,DE,reinsurer,hannover-rueck.de,Reinsurance,0,hot
+Talanx AG,DE,insurer,talanx.com,Insurance group,0,hot
+Wuestenrot & Wuerttembergische,DE,insurer,ww-ag.com,Insurance & building society,0,hot
+Deutsche Pfandbriefbank AG,DE,specialist_lender,pfandbriefbank.com,Real estate lender,0,hot
+Aareal Bank AG,DE,specialist_lender,aareal-bank.com,Property lender,0,hot
+Hypoport SE,DE,fintech_software,hypoport.de,Credit platform,0,hot
+JDC Group AG,DE,insurtech,jdcgroup.de,Insurance platform,0,hot
+AXA SA,FR,insurer,axa.com,Global insurer,0,hot
+CNP Assurances SA,FR,insurer,cnp.fr,Life insurer,0,hot
+Credit Agricole SA,FR,universal_bank,credit-agricole.com,Banking group,0,hot
+Natixis,FR,corporate_bank,natixis.com,Corporate & investment bank,0,hot
+Worldline SA,FR,payments,worldline.com,Payments technology,0,hot
+Edenred SE,FR,payments,edenred.com,Prepaid corporate services,0,hot
+Rothschild & Co,FR,advisory,rothschildandco.com,Advisory & wealth,0,hot
+UniCredit SpA,IT,universal_bank,unicreditgroup.eu,Pan-European bank,0,hot
+Mediobanca SpA,IT,investment_bank,mediobanca.com,Investment bank,0,hot
+Assicurazioni Generali SpA,IT,insurer,generali.com,Global insurer,0,hot
+Poste Italiane SpA,IT,diversified_financial,posteitaliane.it,Postal & financial services,0,hot
+Nexi SpA,IT,payments,nexi.it,Payments,0,hot
+FinecoBank SpA,IT,online_broker,finecobank.com,Online bank & broker,0,hot
+ABN AMRO Bank NV,NL,universal_bank,abnamro.com,Dutch bank,0,hot
+NN Group NV,NL,insurer,nn-group.com,Insurance & asset management,0,hot
+Aegon NV,NL,insurer,aegon.com,Life insurance & pensions,0,hot
+ASR Nederland NV,NL,insurer,asrnl.com,Dutch insurer,0,hot
+Adyen NV,NL,payments,adyen.com,Payments platform,0,hot
+Van Lanschot Kempen NV,NL,wealth_management,vanlanschotkempen.com,Wealth management,0,hot
+Danske Bank A/S,DK,universal_bank,danskebank.com,Nordic bank,0,hot
+Tryg A/S,DK,insurer,tryg.com,Nordic insurer,0,hot
+Sampo Oyj,FI,insurer,sampo.com,Nordic insurer,0,hot
+Mandatum Oyj,FI,asset_manager,mandatum.fi,Life & asset management,0,hot
+DNB Bank ASA,NO,universal_bank,dnb.no,Norwegian bank,0,hot
+Storebrand ASA,NO,insurer,storebrand.no,Insurance & pensions,0,hot
+Svenska Handelsbanken AB,SE,universal_bank,handelsbanken.com,Swedish bank,0,hot
+Swedbank AB,SE,universal_bank,swedbank.com,Swedish bank,0,hot
+Skandinaviska Enskilda Banken,SE,universal_bank,sebgroup.com,Nordic bank,0,hot
+Investor AB,SE,investment_company,investorab.com,Investment company,0,hot
+Kinnevik AB,SE,investment_company,kinnevik.com,Investment company,0,hot
+Legal & General Group plc,GB,insurer,legalandgeneral.com,Insurance & asset management,0,hot
+Aviva plc,GB,insurer,aviva.com,Insurance & asset management,0,hot
+Prudential plc,GB,insurer,prudentialplc.com,Insurance & asset management,0,hot
+M&G plc,GB,asset_manager,mandg.com,Savings & investments,0,hot
+St Jamess Place plc,GB,wealth_management,sjp.co.uk,Wealth management,0,hot
+Quilter plc,GB,wealth_management,quilter.com,Wealth management,0,hot
+Rathbones Group plc,GB,wealth_management,rathbones.com,Wealth management,0,hot
+IntegraFin Holdings plc,GB,platform,integrafin.co.uk,Investment platform,0,hot
+Wise plc,GB,payments,wise.com,Cross-border payments,0,hot
+Barclays plc,GB,universal_bank,barclays.com,Universal bank,0,hot
+Morgan Stanley,US,investment_bank,morganstanley.com,Investment bank & wealth,0,hot
+Goldman Sachs Group Inc,US,investment_bank,goldmansachs.com,Investment bank,0,hot
+Charles Schwab Corporation,US,online_broker,schwab.com,Broker & custody,0,hot
+Franklin Resources Inc,US,asset_manager,franklinresources.com,Franklin Templeton,0,hot
+T Rowe Price Group Inc,US,asset_manager,troweprice.com,Asset manager,0,hot
+Invesco Ltd,US,asset_manager,invesco.com,Asset manager,0,hot
+Northern Trust Corporation,US,custodian,northerntrust.com,Custody & asset servicing,0,hot
+Bank of New York Mellon,US,custodian,bny.com,Custody bank,0,hot
+Intercontinental Exchange Inc,US,exchange,ice.com,Exchanges & data,0,hot
+CME Group Inc,US,exchange,cmegroup.com,Derivatives exchange,0,hot
+MarketAxess Holdings Inc,US,electronic_trading,marketaxess.com,Fixed income trading,0,hot
+Tradeweb Markets Inc,US,electronic_trading,tradeweb.com,Electronic trading,0,hot
+MSCI Inc,US,index_data,msci.com,Indexes & analytics,0,hot
+S&P Global Inc,US,ratings_data,spglobal.com,Ratings & data,0,hot
+Moodys Corporation,US,ratings_data,moodys.com,Ratings & analytics,0,hot
+FactSet Research Systems Inc,US,financial_data,factset.com,Financial data & analytics,0,hot
+Morningstar Inc,US,financial_data,morningstar.com,Investment research & data,0,hot
+Coinbase Global Inc,US,crypto_exchange,coinbase.com,Crypto exchange,0,hot
+DBS Group Holdings Ltd,SG,universal_bank,dbs.com,Singapore bank,1,hot
+Julius Baer Nomura,JP,investment_bank,nomura.com,Japanese investment bank,0,hot
+Macquarie Group Ltd,AU,investment_bank,macquarie.com,Investment bank & asset management,1,hot

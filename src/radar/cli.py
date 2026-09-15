@@ -37,13 +37,19 @@ def ingest(
     live: bool = typer.Option(False, "--live", help="Force live collection from public sources."),
     limit: int | None = typer.Option(None, help="Process only the first N seed companies."),
     record: bool = typer.Option(False, "--record", help="Save live responses as fixtures."),
+    tier: str | None = typer.Option(
+        None, help="Only process these tiers, comma-separated (e.g. hot or hot,warm)."
+    ),
 ) -> None:
     """Run the ingestion pipeline."""
     is_offline = offline or (not live)
     settings = get_settings(offline=is_offline, record_fixtures=record)
     mode = "offline (fixtures)" if is_offline else "live (public sources)"
+    tiers = {t.strip() for t in tier.split(",")} if tier else None
+    if tiers:
+        console.print(f"Tier filter: [bold]{', '.join(sorted(tiers))}[/bold]")
     console.print(f"Running ingest in [bold]{mode}[/bold] mode...")
-    report = run_ingest(settings, limit=limit)
+    report = run_ingest(settings, limit=limit, tiers=tiers)
     table = Table(title="Ingest report", show_header=False)
     table.add_row("Companies stored", str(report.companies))
     table.add_row("Companies enriched", str(report.enriched))
@@ -489,3 +495,36 @@ def export(fmt: str = typer.Option("csv", "--format", help="csv or parquet")) ->
 
 if __name__ == "__main__":
     app()
+
+
+@app.command("import-universe")
+def import_universe_cmd(
+    gleif_csv: str = typer.Argument(..., help="Path to a GLEIF Golden Copy CSV file."),
+    per_region: int = typer.Option(1200, help="Max companies to add per region."),
+    limit: int | None = typer.Option(None, help="Overall cap on companies added."),
+) -> None:
+    """Grow the watchlist from a GLEIF Golden Copy CSV (thousands of real companies)."""
+    from pathlib import Path
+
+    from radar.universe import import_universe
+    settings = get_settings()
+    path = Path(gleif_csv)
+    if not path.exists():
+        console.print(f"[red]File not found:[/red] {path}")
+        raise typer.Exit(1)
+    try:
+        rep = import_universe(path, settings.seed_path, per_region=per_region, limit=limit)
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    t = Table(title="Universe import", show_header=False)
+    t.add_row("Rows read", str(rep.read))
+    t.add_row("Active/issued kept", str(rep.kept))
+    t.add_row("Skipped (inactive)", str(rep.skipped_inactive))
+    t.add_row("Skipped (duplicate)", str(rep.skipped_dupe))
+    t.add_row("[bold]Added to watchlist[/bold]", str(rep.added))
+    for region, n in sorted(rep.per_region.items()):
+        t.add_row(f"  in {region}", str(n))
+    console.print(t)
+    console.print("Imported rows are tier [bold]cold[/bold]. Run `radar ingest` (add --tier to "
+                  "process a subset) then `radar dashboard`.")
