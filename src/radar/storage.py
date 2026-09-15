@@ -151,6 +151,22 @@ TABLES: Sequence[str] = (
     "outcome_labels",
 )
 
+# Conflict keys for INSERT-or-REPLACE style upserts (used by the Postgres backend's ON CONFLICT;
+# the DuckDB backend uses INSERT OR REPLACE and does not need them).
+PRIMARY_KEYS: dict[str, tuple[str, ...]] = {
+    "companies": ("company_id",),
+    "sources": ("source_id",),
+    "events": ("event_id",),
+    "insights": ("insight_id",),
+    "insight_sources": ("insight_id", "event_id"),
+    "feature_snapshots": ("company_id", "snapshot_date", "feature_name", "feature_version"),
+    "scores": ("company_id", "model_version"),
+    "score_history": ("company_id", "model_version", "run_at"),
+    "product_relevance": ("company_id", "model_version", "product_family"),
+    "explanations": ("company_id", "model_version"),
+    "outcome_labels": ("company_id",),
+}
+
 
 class Store:
     """Thin wrapper around a DuckDB connection with the POC schema applied."""
@@ -199,6 +215,10 @@ class Store:
     def df(self, sql: str, params: Sequence | None = None) -> pd.DataFrame:
         return self.con.execute(sql, params or []).df()
 
+    def execute(self, sql: str, params: Sequence | None = None) -> None:
+        """Run a statement (DDL/DELETE/UPDATE) - backend-agnostic entry point."""
+        self.con.execute(sql, params or [])
+
     def count(self, table: str) -> int:
         return self.con.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
 
@@ -219,3 +239,111 @@ class Store:
                 raise ValueError("fmt must be 'csv' or 'parquet'")
             written.append(path)
         return written
+
+
+# --------------------------------------------------------------------------------------------
+# Postgres / Supabase backend
+# --------------------------------------------------------------------------------------------
+#
+# Same method surface as the DuckDB Store, so the rest of the app is backend-agnostic. Selected
+# by open_store() when settings.db_url is set. NOTE: this backend is code-complete but has not
+# been executed against a live Postgres in the build sandbox (no database, no network) - validate
+# on the target Supabase instance. DuckDB remains the default and is the tested path.
+
+# Postgres flavour of the schema (DuckDB VARCHAR[]/DOUBLE -> TEXT[]/DOUBLE PRECISION).
+PG_SCHEMA = (
+    SCHEMA.replace("VARCHAR[]", "TEXT[]")
+    .replace("DOUBLE PRECISION", "DOUBLE")  # guard against double-substitution
+    .replace("DOUBLE", "DOUBLE PRECISION")
+)
+
+
+def _pg_placeholders(sql: str) -> str:
+    """Translate DuckDB-style ``?`` params to Postgres ``%s`` (our SQL has no literal ?)."""
+    return sql.replace("?", "%s")
+
+
+class PostgresStore:
+    """Postgres/Supabase-backed store with the same interface as the DuckDB Store."""
+
+    def __init__(self, db_url: str):
+        import psycopg  # imported lazily so the DuckDB path never needs the driver
+
+        self.conn = psycopg.connect(db_url, autocommit=True)
+        for stmt in filter(str.strip, PG_SCHEMA.split(";")):
+            self.conn.execute(stmt)
+
+    def close(self) -> None:
+        self.conn.close()
+
+    def __enter__(self) -> PostgresStore:
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
+    def execute(self, sql: str, params: Sequence | None = None) -> None:
+        self.conn.execute(_pg_placeholders(sql), list(params) if params else None)
+
+    def df(self, sql: str, params: Sequence | None = None) -> pd.DataFrame:
+        cur = self.conn.execute(_pg_placeholders(sql), list(params) if params else None)
+        cols = [d.name for d in cur.description] if cur.description else []
+        return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    def columns(self, table: str) -> list[str]:
+        cur = self.conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_name = %s ORDER BY ordinal_position",
+            [table],
+        )
+        return [r[0] for r in cur.fetchall()]
+
+    def upsert(self, table: str, records: Iterable[BaseModel]) -> int:
+        rows = [r.model_dump(mode="python") for r in records]
+        if not rows:
+            return 0
+        if table not in TABLES:
+            raise ValueError(f"unknown table {table!r}")
+        cols = [c for c in self.columns(table) if c in rows[0]]
+        pk = PRIMARY_KEYS[table]
+        updates = [c for c in cols if c not in pk]
+        set_clause = (
+            ", ".join(f"{c} = EXCLUDED.{c}" for c in updates)
+            or f"{pk[0]} = EXCLUDED.{pk[0]}"
+        )
+        placeholders = "(" + ", ".join(["%s"] * len(cols)) + ")"
+        sql = (
+            f"INSERT INTO {table} ({', '.join(cols)}) VALUES {placeholders} "
+            f"ON CONFLICT ({', '.join(pk)}) DO UPDATE SET {set_clause}"
+        )
+        with self.conn.cursor() as cur:
+            cur.executemany(sql, [[row.get(c) for c in cols] for row in rows])
+        return len(rows)
+
+    def count(self, table: str) -> int:
+        return self.conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+
+    def counts(self) -> dict[str, int]:
+        return {t: self.count(t) for t in TABLES}
+
+    def export(self, out_dir: Path, fmt: str = "csv", tables: Sequence[str] = TABLES) -> list[Path]:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        written: list[Path] = []
+        for t in tables:
+            path = out_dir / f"{t}.{fmt}"
+            frame = self.df(f"SELECT * FROM {t}")
+            if fmt == "csv":
+                frame.to_csv(path, index=False)
+            elif fmt == "parquet":
+                frame.to_parquet(path, index=False)
+            else:
+                raise ValueError("fmt must be 'csv' or 'parquet'")
+            written.append(path)
+        return written
+
+
+def open_store(settings) -> Store | PostgresStore:
+    """Return the storage backend for these settings: Postgres if db_url is set, else DuckDB."""
+    if getattr(settings, "db_url", None):
+        return PostgresStore(settings.db_url)
+    return Store(settings.resolved_db_path)

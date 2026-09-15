@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # --- Storage -------------------------------------------------------------------------
     data_dir: Path = PROJECT_ROOT / "data"
     db_path: Path | None = None  # defaults to <data_dir>/db/radar.duckdb
+    db_url: str | None = Field(
+        default=None,
+        description="Postgres/Supabase connection string. When set, storage uses Postgres "
+        "instead of the local DuckDB file (e.g. RADAR_DB_URL=postgresql://...).",
+    )
 
     # --- Collection behaviour ------------------------------------------------------------
     offline: bool = Field(

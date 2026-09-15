@@ -27,7 +27,7 @@ from rapidfuzz import fuzz
 from radar.config import Settings
 from radar.models import EventType, Insight, InsightSource, stable_id, utcnow
 from radar.normalize import normalize_name
-from radar.storage import Store
+from radar.storage import open_store
 
 
 @dataclass
@@ -99,7 +99,7 @@ def build_insights(settings: Settings, run_started: datetime | None = None) -> I
     sim = settings.dedup_title_similarity
     window = settings.dedup_window_days
 
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         events_df = store.df(
             """
             SELECT e.event_id, e.company_id, e.event_type, e.event_date, e.title,
@@ -166,8 +166,8 @@ def build_insights(settings: Settings, run_started: datetime | None = None) -> I
                     report.insights_new += 1
 
         # full recompute: clear and rewrite so no stale rows survive
-        store.con.execute("DELETE FROM insight_sources")
-        store.con.execute("DELETE FROM insights")
+        store.execute("DELETE FROM insight_sources")
+        store.execute("DELETE FROM insights")
         report.insights_total = store.upsert("insights", insights)
         report.sources_linked = store.upsert("insight_sources", sources)
     return report

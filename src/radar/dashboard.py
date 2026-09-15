@@ -24,7 +24,7 @@ from radar.config import Settings
 from radar.models import ProductFamily as PF
 from radar.products import PRODUCT_LABEL
 from radar.scoring import MODEL_VERSION
-from radar.storage import Store
+from radar.storage import Store, open_store
 
 CONN_LABEL = {
     "google_news_rss": "Google News", "gdelt": "GDELT",
@@ -154,7 +154,7 @@ def collect_data(store: Store) -> dict:
 
 def build_dashboard(settings: Settings, out_path: Path | None = None) -> Path:
     out_path = out_path or (settings.exports_dir / "dashboard.html")
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         if store.count("scores") == 0:
             raise RuntimeError("No scores in the database. Run `radar ingest` first.")
         data = collect_data(store)

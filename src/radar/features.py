@@ -30,7 +30,7 @@ import pandas as pd
 
 from radar.config import Settings
 from radar.models import FeatureSnapshot, utcnow
-from radar.storage import Store
+from radar.storage import open_store
 
 FEATURE_VERSION = "s2-v1"
 
@@ -106,7 +106,7 @@ def build_features(settings: Settings, today: date | None = None) -> FeatureRepo
     snapshot_date = today
     report = FeatureReport()
 
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         companies = store.df(
             "SELECT company_id, canonical_name, segment, description, size_band, listed "
             "FROM companies"
@@ -181,7 +181,7 @@ def build_features(settings: Settings, today: date | None = None) -> FeatureRepo
             add(cid, "profile_similarity", sim_by_company.get(cid, 0.0))
 
         # rewrite this feature version cleanly
-        store.con.execute(
+        store.execute(
             "DELETE FROM feature_snapshots WHERE feature_version = ?", [FEATURE_VERSION]
         )
         report.features_written = store.upsert("feature_snapshots", snapshots)

@@ -18,7 +18,7 @@ from datetime import datetime
 
 from radar.config import Settings
 from radar.scoring import MODEL_VERSION
-from radar.storage import Store
+from radar.storage import open_store
 
 DEFAULT_MIN_DELTA = 3.0   # points of score change worth showing
 NEW_THRESHOLD = 20.0      # a first-time company must reach this to count as "newly flagged"
@@ -66,7 +66,7 @@ class MoversReport:
 
 def compute_movers(settings: Settings, min_delta: float = DEFAULT_MIN_DELTA) -> MoversReport:
     report = MoversReport()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         runs = store.df(
             "SELECT DISTINCT run_at FROM score_history WHERE model_version = ? "
             "ORDER BY run_at DESC LIMIT 2",

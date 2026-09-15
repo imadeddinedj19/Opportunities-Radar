@@ -29,7 +29,7 @@ from radar.models import (
 from radar.normalize import canonicalize, guess_event_type, normalize_name
 from radar.regions import resolve_region
 from radar.scoring import run_scoring
-from radar.storage import Store
+from radar.storage import open_store
 
 # Registry of insight-producing connectors. Each module exposes ``collect(fetcher, name)`` and a
 # ``*_URL`` constant. Adding a source is one entry here plus a connector module (NFR-05).
@@ -207,7 +207,7 @@ def run(settings: Settings, limit: int | None = None,
     unique_events = {e.event_id: e for e in events}
 
     run_started = utcnow()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         report.companies = store.upsert("companies", companies)
         report.sources = store.upsert("sources", sources.values())
         report.events = store.upsert("events", unique_events.values())
@@ -249,7 +249,7 @@ def ingest_one(
     # If this company is already known (e.g. it's in the seed), keep its existing seed attributes
     # unless the caller overrides them - so a lookup never wipes country / segment / strategic.
     cid = stable_id("company", normalize_name(name))
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         prior = store.df(
             "SELECT country, segment, strategic FROM companies WHERE company_id = ?", [cid]
         )
@@ -299,7 +299,7 @@ def ingest_one(
 
     unique_events = {e.event_id: e for e in events}
     run_started = utcnow()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         store.upsert("companies", [company])
         store.upsert("sources", sources.values())
         store.upsert("events", unique_events.values())

@@ -16,7 +16,7 @@ from rich.table import Table
 
 from radar.config import get_settings
 from radar.ingest.pipeline import run as run_ingest
-from radar.storage import Store
+from radar.storage import Store, open_store
 
 app = typer.Typer(add_completion=False, help="Opportunity Detection Radar - external POC")
 console = Console()
@@ -26,7 +26,7 @@ console = Console()
 def init_db() -> None:
     """Create the local analytical database and its schema."""
     settings = get_settings()
-    store = Store(settings.resolved_db_path)
+    store = open_store(settings)
     store.close()
     console.print(f"[green]Database ready[/green] at {settings.resolved_db_path}")
 
@@ -74,7 +74,7 @@ def ingest(
 def status() -> None:
     """Show table counts and the companies with the most detected events."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         counts = store.counts()
         table = Table(title="Database contents")
         table.add_column("Table")
@@ -106,7 +106,7 @@ def status() -> None:
 def company(name: str) -> None:
     """Inspect one company: profile plus its events and sources."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         prof = store.df(
             "SELECT * FROM companies WHERE lower(canonical_name) LIKE lower(?) LIMIT 1",
             [f"%{name}%"],
@@ -150,7 +150,7 @@ def insights(
 ) -> None:
     """Daily Insights: distinct, deduplicated signals, each with the sources that reported it."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         where = []
         params: list = []
         if new:
@@ -198,7 +198,7 @@ def features(
 ) -> None:
     """S2 features: per-company model-ready numbers (intensity, recency, fit, similarity)."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         if store.count("feature_snapshots") == 0:
             console.print("[dim]No features yet. Run `radar ingest` first.[/dim]")
             return
@@ -254,7 +254,7 @@ def rank(
 ) -> None:
     """The Opportunity Radar: companies ranked by score, with region and the recommended product."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         if store.count("scores") == 0:
             console.print("[dim]No scores yet. Run `radar ingest` first.[/dim]")
             return
@@ -384,7 +384,7 @@ def _print_score_card(store: Store, company_id: str) -> None:
 def score(name: str) -> None:
     """One company's opportunity score: product-fit breakdown, reasons and evidence."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         prof = store.df(
             "SELECT c.company_id FROM scores s JOIN companies c USING (company_id) "
             "WHERE lower(c.canonical_name) LIKE lower(?) ORDER BY s.rank LIMIT 1",
@@ -413,7 +413,7 @@ def lookup(
     """Score ANY company by name on demand (not only the watchlist), and rank it among the rest."""
     from radar.ingest.pipeline import ingest_one
     settings = get_settings(offline=offline)
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         has_context = store.count("scores") > 0
     if not has_context:
         console.print("[yellow]Tip:[/yellow] run `radar ingest` first so the new company is ranked "
@@ -421,7 +421,7 @@ def lookup(
     mode = "recorded fixtures" if offline else "live public sources"
     console.print(f"Collecting and scoring [bold]{name}[/bold] from {mode}...")
     cid = ingest_one(settings, name, country=country, segment=segment, strategic=strategic)
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         _print_score_card(store, cid)
 
 
@@ -488,7 +488,7 @@ def dashboard(
 def export(fmt: str = typer.Option("csv", "--format", help="csv or parquet")) -> None:
     """Export every table to data/exports/ (FR-12)."""
     settings = get_settings()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         paths = store.export(settings.exports_dir, fmt=fmt)
     console.print(f"[green]Exported {len(paths)} tables[/green] to {settings.exports_dir}")
 

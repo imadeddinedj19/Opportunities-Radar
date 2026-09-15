@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 
 from radar.config import Settings
 from radar.scoring import MODEL_VERSION
-from radar.storage import Store
+from radar.storage import Store, open_store
 
 REL_MIN = 2.0       # >= 2 relevant events
 SOURCES_MIN = 2.0   # corroborated by >= 2 sources
@@ -66,7 +66,7 @@ def _precision_at_k(ranked: list[str], positives: set[str], k: int) -> tuple[flo
 
 def run_evaluation(settings: Settings, seed: int = 42) -> EvalReport:
     report = EvalReport()
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         if store.count("scores") == 0:
             raise RuntimeError("No scores in the database. Run `radar ingest` first.")
         feats = _features(store)

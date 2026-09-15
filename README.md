@@ -99,6 +99,23 @@ not three notifications. Insights first seen on the most recent run are flagged 
 `radar insights` and the "Insights layer" section of `docs/ROADMAP.md` for how the matching works
 and its limits.
 
+## Storage: local DuckDB or Supabase (Postgres)
+
+By default the tool stores everything in a local DuckDB file (`data/db/radar.duckdb`) — zero setup,
+great for the demo. For a hosted, multi-user product, point it at **Supabase** (managed Postgres):
+
+```bash
+pip install -e ".[postgres]"                         # installs the Postgres driver
+export RADAR_DB_URL="postgresql://postgres:<pwd>@<host>:5432/postgres"   # Supabase connection string
+radar init-db        # creates the tables in Supabase (or run supabase/migrations/0001_init.sql)
+radar ingest --offline && radar dashboard
+```
+
+When `RADAR_DB_URL` is set the tool uses Postgres; unset it and it falls back to the local DuckDB
+file. The Supabase schema is in `supabase/migrations/0001_init.sql`. Note: the Postgres backend is
+code-complete but was written in an offline sandbox — validate it against your Supabase instance on
+first run and tell me of any SQL that needs adjusting.
+
 ## Offline vs live
 
 Offline mode replays recorded sample responses (*fixtures*) so the pipeline and the tests run

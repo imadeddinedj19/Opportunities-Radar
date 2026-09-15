@@ -29,7 +29,7 @@ from datetime import datetime
 from radar.config import Settings
 from radar.models import Explanation, ProductRelevance, Score, ScoreHistory, utcnow
 from radar.products import PRODUCT_LABEL, best_product, product_relevance_raw, to_display
-from radar.storage import Store
+from radar.storage import open_store
 
 MODEL_VERSION = "s3-baseline-v1"
 
@@ -97,7 +97,7 @@ def run_scoring(settings: Settings, score_date: datetime | None = None) -> Score
     score_date = score_date or utcnow()
     report = ScoreReport()
 
-    with Store(settings.resolved_db_path) as store:
+    with open_store(settings) as store:
         companies = store.df(
             "SELECT company_id, canonical_name, segment, description FROM companies"
         )
@@ -194,9 +194,9 @@ def run_scoring(settings: Settings, score_date: datetime | None = None) -> Score
                             supporting_features=supporting, source_ids=evidence.get(cid, [])[:5])
             )
 
-        store.con.execute("DELETE FROM scores WHERE model_version = ?", [MODEL_VERSION])
-        store.con.execute("DELETE FROM product_relevance WHERE model_version = ?", [MODEL_VERSION])
-        store.con.execute("DELETE FROM explanations WHERE model_version = ?", [MODEL_VERSION])
+        store.execute("DELETE FROM scores WHERE model_version = ?", [MODEL_VERSION])
+        store.execute("DELETE FROM product_relevance WHERE model_version = ?", [MODEL_VERSION])
+        store.execute("DELETE FROM explanations WHERE model_version = ?", [MODEL_VERSION])
         report.scored = store.upsert("scores", scores)
         # Append this run to the history so the movers view can compare runs over time.
         store.upsert("score_history", [
