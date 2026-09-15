@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from radar.config import Settings
-from radar.models import Explanation, ProductRelevance, Score, utcnow
+from radar.models import Explanation, ProductRelevance, Score, ScoreHistory, utcnow
 from radar.products import PRODUCT_LABEL, best_product, product_relevance_raw, to_display
 from radar.storage import Store
 
@@ -198,6 +198,12 @@ def run_scoring(settings: Settings, score_date: datetime | None = None) -> Score
         store.con.execute("DELETE FROM product_relevance WHERE model_version = ?", [MODEL_VERSION])
         store.con.execute("DELETE FROM explanations WHERE model_version = ?", [MODEL_VERSION])
         report.scored = store.upsert("scores", scores)
+        # Append this run to the history so the movers view can compare runs over time.
+        store.upsert("score_history", [
+            ScoreHistory(company_id=sc.company_id, model_version=sc.model_version,
+                         run_at=score_date, score=sc.score, rank=sc.rank)
+            for sc in scores
+        ])
         report.product_rows = store.upsert("product_relevance", product_rows)
         report.explanations = store.upsert("explanations", explanations)
         report.top = [

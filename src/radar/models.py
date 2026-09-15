@@ -215,6 +215,20 @@ class Score(BaseModel):
     rank: int | None = None
 
 
+class ScoreHistory(BaseModel):
+    """One company's score at one scoring run - the basis of the "what changed" view.
+
+    ``scores`` holds only the latest run (it is rewritten each time); this table APPENDS a row per
+    company per run, so we can compare runs and show who is rising, falling, or newly flagged.
+    """
+
+    company_id: str
+    model_version: str
+    run_at: datetime
+    score: float = Field(ge=0.0, le=100.0)
+    rank: int | None = None
+
+
 class ProductRelevance(BaseModel):
     company_id: str
     model_version: str
@@ -274,6 +288,7 @@ __all__ = [
     "ProductRelevance",
     "RawResponse",
     "Score",
+    "ScoreHistory",
     "SizeBand",
     "Source",
     "stable_id",

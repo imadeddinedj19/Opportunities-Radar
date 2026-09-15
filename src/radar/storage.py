@@ -100,6 +100,14 @@ CREATE TABLE IF NOT EXISTS scores (
     rank INTEGER,
     PRIMARY KEY (company_id, model_version)
 );
+CREATE TABLE IF NOT EXISTS score_history (
+    company_id VARCHAR NOT NULL,
+    model_version VARCHAR NOT NULL,
+    run_at TIMESTAMPTZ NOT NULL,
+    score DOUBLE NOT NULL,
+    rank INTEGER,
+    PRIMARY KEY (company_id, model_version, run_at)
+);
 CREATE TABLE IF NOT EXISTS product_relevance (
     company_id VARCHAR NOT NULL,
     model_version VARCHAR NOT NULL,
@@ -136,6 +144,7 @@ TABLES: Sequence[str] = (
     "insight_sources",
     "feature_snapshots",
     "scores",
+    "score_history",
     "product_relevance",
     "explanations",
     "outcome_labels",

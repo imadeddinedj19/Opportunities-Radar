@@ -287,6 +287,52 @@ def rank(
         console.print(t)
 
 
+@app.command()
+def movers(
+    min_delta: float = typer.Option(3.0, help="Minimum score change worth showing."),
+) -> None:
+    """What changed since the last run: newly flagged companies, risers and fallers."""
+    from radar.movers import compute_movers
+    settings = get_settings()
+    rep = compute_movers(settings, min_delta=min_delta)
+    if rep.runs_available == 0:
+        console.print("[dim]No scores yet. Run `radar ingest` first.[/dim]")
+        return
+    if rep.runs_available < 2:
+        console.print("[yellow]Only one run so far[/yellow] — run `radar ingest` again later, "
+                      "then this shows what changed between runs.")
+        return
+    if not rep.movers:
+        console.print("[dim]No material changes since the previous run.[/dim]")
+        return
+
+    def _section(title: str, items: list, arrow: str, colour: str) -> None:
+        if not items:
+            return
+        t = Table(title=title)
+        for col in ("company", "region", "score", "change", "rank"):
+            t.add_column(col)
+        for m in items[:15]:
+            prev = f" (was {m.previous:.0f})" if m.previous is not None else ""
+            rankmv = ""
+            if m.rank_delta:
+                rankmv = f"↑{m.rank_delta}" if m.rank_delta > 0 else f"↓{-m.rank_delta}"
+            t.add_row(
+                str(m.name)[:26], str(m.region),
+                f"{m.score:.1f}{prev}",
+                f"[{colour}]{arrow}{abs(m.delta):.1f}[/{colour}]" if m.kind != "new"
+                else f"[{colour}]NEW[/{colour}]",
+                (f"#{m.rank} {rankmv}" if m.rank else ""),
+            )
+        console.print(t)
+
+    console.print(f"[bold]Movers since the previous run[/bold] "
+                  f"({len(rep.new)} new · {len(rep.risers)} up · {len(rep.fallers)} down)\n")
+    _section("🆕 Newly flagged", rep.new, "", "green")
+    _section("▲ Rising", rep.risers, "+", "green")
+    _section("▼ Falling", rep.fallers, "-", "red")
+
+
 def _print_score_card(store: Store, company_id: str) -> None:
     r = store.df(
         """
